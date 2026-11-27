@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Capetinha AI</title>
+
+  <!-- Configuração para adicionar à Tela de Início do iPhone (iOS PWA) -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Capetinha AI" />
+  <meta name="theme-color" content="#0c0711" />
+  <link id="apple-icon" rel="apple-touch-icon" href="" />
+
+  <style>
+    :root {
+      --bg-dark: #0c0711;
+      --bg-card: #160d1f;
+      --accent-red: #ff2a55;
+      --accent-orange: #ff8c1a;
+      --accent-gold: #ffd166;
+      --accent-cyan: #22d3ee;
+      --text-main: #f8f2fc;
+      --text-muted: #a695b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 35%, #231133 0%, var(--bg-dark) 75%);
+      color: var(--text-main);
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 460px;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: env(safe-area-inset-top, 12px) 14px env(safe-area-inset-bottom, 14px);
+      position: relative;
+    }
+
+    /* Topo estilo IA */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 4px;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-red), #7a0c2e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 12px rgba(255, 42, 85, 0.45);
+    }
+
+    .brand-info h1 {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-pill {
+      font-size: 10px;
+      background: rgba(46, 213, 115, 0.15);
+      color: #2ed573;
+      padding: 2px 7px;
+      border-radius: 99px;
+      font-weight: 600;
+    }
+
+    .brand-info p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Balão de resposta */
+    .speech-card {
+      background: rgba(22, 13, 31, 0.85);
+      border: 1px solid rgba(255, 42, 85, 0.28);
+      border-radius: 18px;
+      padding: 14px 16px;
+      min-height: 82px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      z-index: 10;
+      backdrop-filter: blur(8px);
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .user-quote {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-bottom: 6px;
+      text-align: center;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .demon-reply {
+      font-size: 15px;
+      line-height: 1.42;
+      font-weight: 600;
+      text-align: center;
+      color: #fff;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    /* Palco livre / mundinho virtual do Capetinha */
+    .stage {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      margin: 8px 0;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 50% 48%, rgba(255, 42, 85, 0.15), transparent 64%),
+        radial-gradient(circle at 80% 20%, rgba(255, 140, 26, 0.08), transparent 45%),
+        linear-gradient(rgba(255, 42, 85, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 42, 85, 0.03) 1px, transparent 1px),
+        rgba(9, 5, 15, 0.72);
+      background-size: auto, auto, 28px 28px, 28px 28px, auto;
+      border: 1px solid rgba(255, 42, 85, 0.3);
+      box-shadow:
+        inset 0 0 36px rgba(255, 42, 85, 0.12),
+        0 10px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Seletor discreto para o usuário escolher pose/movimento quando quiser */
+    .pose-bar {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+      z-index: 8;
+    }
+
+    .pose-btn {
+      background: rgba(16, 9, 25, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e5d8f2;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 9px;
+      border-radius: 999px;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+    }
+
+    .pose-btn.active {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+      background: rgba(255, 190, 11, 0.14);
+    }
+
+    /* Linha de chão discreta do mundinho */
+    .stage-floor {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 18px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 140, 26, 0.35), rgba(255, 42, 85, 0.35), transparent);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Brasas suaves no fundo */
+    .ember {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      box-shadow: 0 0 8px var(--accent-orange);
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 1;
+      animation: emberRise linear infinite;
+    }
+
+    @keyframes emberRise {
+      0% { transform: translateY(0) scale(0.8); opacity: 0; }
+      25% { opacity: 0.55; }
+      85% { opacity: 0.35; }
+      100% { transform: translateY(-190px) scale(1.2); opacity: 0; }
+    }
+
+    /* Foguinhos surpresa de conselho grátis */
+    .fire-spark {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 190, 50, 0.8);
+      background: radial-gradient(circle, rgba(255, 180, 30, 0.35), rgba(255, 42, 85, 0.22));
+      box-shadow: 0 0 15px rgba(255, 140, 26, 0.65);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 7;
+      animation: sparkPulse 1.3s ease-in-out infinite;
+      touch-action: manipulation;
+    }
+
+    .fire-spark:active {
+      transform: scale(1.25);
+    }
+
+    @keyframes sparkPulse {
+      0%, 100% { transform: scale(0.95) rotate(-5deg); }
+      50% { transform: scale(1.12) rotate(5deg); }
+    }
+
+    .demon-wrapper {
+      position: absolute;
+      width: 124px;
+      height: 122px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      z-index: 5;
+    }
+
+    .demon-body-anim {
+      width: 100%;
+      height: 100%;
+      animation: floatBob 3.4s ease-in-out infinite;
+      filter: drop-shadow(0 6px 14px rgba(255, 42, 85, 0.35));
+    }
+
+    /* Parado (voando parado ou no chão parado) */
+    .demon-wrapper.still .demon-body-anim {
+      animation: gentleIdleBreath 2.6s ease-in-out infinite;
+    }
+
+    /* Caminhando devagarinho no chão */
+    .demon-wrapper.walking .demon-body-anim {
+      animation: walkBounce 0.68s ease-in-out infinite;
+    }
+
+    /* Sentado no chão */
+    .demon-wrapper.sitting .demon-body-anim {
+      animation: sitChill 2.8s ease-in-out infinite;
+    }
+
+    /* Asas aparecem quando voa e somem quando desce para andar ou sentar */
+    .wings-group {
+      transform-origin: 60px 62px;
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.25s ease, transform 0.28s ease;
+    }
+
+    .demon-wrapper.walking .wings-group,
+    .demon-wrapper.sitting .wings-group {
+      opacity: 0;
+      transform: scale(0.1);
+      pointer-events: none;
+    }
+
+    .wing-l {
+      transform-origin: 40px 60px;
+      animation: flapL 0.85s ease-in-out infinite;
+    }
+    .wing-r {
+      transform-origin: 80px 60px;
+      animation: flapR 0.85s ease-in-out infinite;
+    }
+
+    /* Perninhas aparecem quando anda ou senta; somem quando voa */
+    .legs-group {
+      transform-origin: 60px 92px;
+      opacity: 0;
+      transform: scaleY(0.1);
+      transition: opacity 0.25s ease, transform 0.28s ease;
+    }
+
+    .demon-wrapper.walking .legs-group,
+    .demon-wrapper.sitting .legs-group {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+
+    .demon-wrapper.walking .leg-l {
+      transform-origin: 53px 94px;
+      animation: stepL 0.68s ease-in-out infinite;
+    }
+
+    .demon-wrapper.walking .leg-r {
+      transform-origin: 67px 94px;
+      animation: stepR 0.68s ease-in-out infinite;
+    }
+
+    /* Perninhas esticadas para frente quando está sentado */
+    .demon-wrapper.sitting .leg-l {
+      transform-origin: 53px 94px;
+      transform: rotate(-42deg) translate(2px, -4px);
+    }
+    .demon-wrapper.sitting .leg-r {
+      transform-origin: 67px 94px;
+      transform: rotate(35deg) translate(-2px, -3px);
+    }
+
+    @keyframes gentleIdleBreath {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-2px) scale(1.015); }
+    }
+
+    @keyframes sitChill {
+      0%, 100% { transform: translateY(4px) rotate(0deg); }
+      50% { transform: translateY(5px) rotate(-1.5deg); }
+    }
+
+    /* Efeitos especiais de arroto (traminhas na boca), bocejo (fumaça) e peido (foguinho no rabinho) */
+    .burp-waves {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .demon-body-anim.react-burp .burp-waves {
+      opacity: 1;
+      animation: burpWaveAnim 0.65s ease-out forwards;
+    }
+
+    .yawn-smoke {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .demon-body-anim.react-yawn .yawn-smoke {
+      opacity: 1;
+      animation: yawnSmokeAnim 0.95s ease-out forwards;
+    }
+
+    .fart-flame {
+      opacity: 0;
+      pointer-events: none;
+      transform-origin: 26px 76px;
+    }
+    .demon-body-anim.react-fart .fart-flame {
+      opacity: 1;
+      animation: fartFlameAnim 0.7s ease-out forwards;
+    }
+
+    @keyframes burpWaveAnim {
+      0% { transform: translateX(0) scale(0.7); opacity: 0.2; }
+      45% { transform: translateX(6px) scale(1.08); opacity: 1; }
+      100% { transform: translateX(12px) scale(1.18); opacity: 0; }
+    }
+
+    @keyframes yawnSmokeAnim {
+      0% { transform: translateY(4px) scale(0.65); opacity: 0.25; }
+      50% { transform: translateY(-8px) scale(1.05); opacity: 0.95; }
+      100% { transform: translateY(-18px) scale(1.25); opacity: 0; }
+    }
+
+    @keyframes fartFlameAnim {
+      0% { transform: translateX(4px) scale(0.5); opacity: 0.2; }
+      40% { transform: translateX(-6px) scale(1.2); opacity: 1; }
+      100% { transform: translateX(-14px) scale(1.35); opacity: 0; }
+    }
+
+    /* Visão de costas (quando ele vira de costas) */
+    .back-view {
+      display: none;
+    }
+
+    .demon-body-anim.turned-back .front-view {
+      display: none;
+    }
+
+    .demon-body-anim.turned-back .back-view {
+      display: block;
+    }
+
+    @keyframes walkBounce {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-2.5px); }
+    }
+
+    @keyframes stepL {
+      0%, 100% { transform: rotate(-16deg) translateY(0); }
+      50% { transform: rotate(16deg) translateY(-1.5px); }
+    }
+
+    @keyframes stepR {
+      0%, 100% { transform: rotate(16deg) translateY(-1.5px); }
+      50% { transform: rotate(-16deg) translateY(0); }
+    }
+
+    /* Animações variadas ao tocar */
+    .demon-body-anim.react-hop { animation: reactHop 0.48s cubic-bezier(0.2, 1.3, 0.35, 1); }
+    .demon-body-anim.react-scare { animation: reactScare 0.5s ease-out; }
+    .demon-body-anim.react-spin { animation: reactSpin 0.55s ease-out; }
+    .demon-body-anim.react-flip { animation: reactFlip 0.72s cubic-bezier(0.22, 1, 0.36, 1); }
+    .demon-body-anim.react-swim { animation: reactSwim 0.75s ease-in-out infinite; }
+    .demon-body-anim.react-back { animation: reactBack 0.45s ease-out; }
+    .demon-body-anim.react-yawn { animation: reactYawn 0.85s ease-in-out; }
+    .demon-body-anim.react-wink { animation: reactWink 0.45s ease-in-out; }
+    .demon-body-anim.react-burp { animation: reactBurp 0.6s ease-out; }
+    .demon-body-anim.react-fart { animation: reactFart 0.65s ease-out; }
+
+    /* Modo diabão frenético (10 cliques rápidos) */
+    .stage.frenzy {
+      border-color: var(--accent-red);
+      box-shadow:
+        inset 0 0 42px rgba(255, 42, 85, 0.38),
+        0 0 24px rgba(255, 42, 85, 0.45);
+      animation: stageShake 0.14s linear infinite;
+    }
+
+    .stage.frenzy .demon-body-anim {
+      transform: scale(1.24);
+      animation: frenzyRage 0.16s linear infinite;
+      filter: drop-shadow(0 0 16px rgba(255, 42, 85, 0.9));
+    }
+
+    @keyframes floatBob {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-7px) rotate(1.5deg); }
+    }
+
+    @keyframes reactHop {
+      0% { transform: translateY(0) scale(1, 1); }
+      35% { transform: translateY(-18px) scale(0.92, 1.12); }
+      75% { transform: translateY(2px) scale(1.08, 0.92); }
+      100% { transform: translateY(0) scale(1, 1); }
+    }
+
+    @keyframes reactScare {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.2) translateX(-6px); }
+      55% { transform: scale(0.88) translateX(6px); }
+      100% { transform: scale(1) translateX(0); }
+    }
+
+    @keyframes reactSpin {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.1); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes reactFlip {
+      0% { transform: translateY(0) rotate(0deg) scale(1); }
+      45% { transform: translateY(-22px) rotate(180deg) scale(1.12); }
+      100% { transform: translateY(0) rotate(360deg) scale(1); }
+    }
+
+    @keyframes reactSwim {
+      0%, 100% { transform: rotate(-16deg) translateY(-4px); }
+      50% { transform: rotate(16deg) translateY(5px); }
+    }
+
+    @keyframes reactBack {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.1, 0.94); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes reactYawn {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08, 0.95); }
+    }
+
+    @keyframes reactWink {
+      0%, 100% { transform: rotate(0deg); }
+      45% { transform: rotate(-10deg) scale(1.07); }
+      80% { transform: rotate(7deg); }
+    }
+
+    @keyframes reactBurp {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.18, 0.92); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes reactFart {
+      0% { transform: translateX(0); }
+      30% { transform: translateX(-7px) rotate(-7deg); }
+      65% { transform: translateX(7px) rotate(7deg); }
+      100% { transform: translateX(0) rotate(0deg); }
+    }
+
+    @keyframes frenzyRage {
+      0% { transform: scale(1.24) rotate(-8deg); }
+      50% { transform: scale(1.28) rotate(8deg); }
+      100% { transform: scale(1.24) rotate(-8deg); }
+    }
+
+    @keyframes stageShake {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(-2px, 1px); }
+      50% { transform: translate(2px, -1px); }
+      75% { transform: translate(-1px, -2px); }
+    }
+
+    @keyframes flapL {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-18deg); }
+    }
+    @keyframes flapR {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(18deg); }
+    }
+
+    /* Sugestões rápidas e input */
+    .chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+    .chips::-webkit-scrollbar { display: none; }
+
+    .chip {
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+      padding: 7px 12px;
+      border-radius: 99px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .chip.surprise {
+      background: linear-gradient(135deg, rgba(255, 42, 85, 0.25), rgba(255, 140, 26, 0.24));
+      border-color: rgba(255, 140, 26, 0.55);
+      color: #ffe3c2;
+      font-weight: 600;
+    }
+
+    .input-bar {
+      display: flex;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 6px;
+    }
+
+    .input-bar input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 15px;
+      padding: 8px 10px;
+      outline: none;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .send-btn {
+      background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      padding: 0 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Modal simples de histórico */
+    .history-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(12, 7, 17, 0.95);
+      z-index: 30;
+      display: none;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .history-modal.open { display: flex; }
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .msg-bubble {
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      max-width: 85%;
+    }
+    .msg-user {
+      align-self: flex-end;
+      background: rgba(255, 42, 85, 0.25);
+    }
+    .msg-demon {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="header">
+      <div class="brand">
+        <div class="avatar-badge">😈</div>
+        <div class="brand-info">
+          <h1>Capetinha AI <span class="status-pill">Online</span></h1>
+          <p id="mood-text">De boa por aí...</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="btn-history" title="Histórico">💬</button>
+        <button class="icon-btn" id="btn-voice" title="Voz">🔊</button>
+        <button class="icon-btn" id="btn-reset" title="Limpar memória">↺</button>
+      </div>
+    </header>
+
+    <div class="speech-card">
+      <div class="user-quote" id="user-quote">Toque em mim ou mande sua dúvida</div>
+      <div class="demon-reply" id="demon-reply">"Fala logo, mortal. Qual decisão sensata vamos estragar hoje?"</div>
+    </div>
+
+    <main class="stage" id="stage">
+      <div class="pose-bar" id="pose-bar">
+        <button type="button" class="pose-btn active" data-pose="auto">Auto</button>
+        <button type="button" class="pose-btn" data-pose="fly">Voar</button>
+        <button type="button" class="pose-btn" data-pose="walk">Andar</button>
+        <button type="button" class="pose-btn" data-pose="sit">Sentar</button>
+        <button type="button" class="pose-btn" data-pose="still">Parar</button>
+      </div>
+
+      <div class="stage-floor"></div>
+      <span class="ember" style="left: 18%; bottom: 20px; animation-duration: 5.2s; animation-delay: 0s;"></span>
+      <span class="ember" style="left: 42%; bottom: 20px; animation-duration: 6.4s; animation-delay: 1.5s;"></span>
+      <span class="ember" style="left: 68%; bottom: 20px; animation-duration: 4.9s; animation-delay: 0.7s;"></span>
+      <span class="ember" style="left: 84%; bottom: 20px; animation-duration: 6.0s; animation-delay: 2.3s;"></span>
+
+      <div class="demon-wrapper" id="demon">
+        <div class="demon-body-anim" id="demon-anim">
+          <svg viewBox="0 0 136 126" width="128" height="122">
+            <defs>
+              <radialGradient id="skinGrad" cx="45%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#ff5e7e" />
+                <stop offset="65%" stop-color="#d91642" />
+                <stop offset="100%" stop-color="#870926" />
+              </radialGradient>
+              <linearGradient id="goldHorn" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffe680" />
+                <stop offset="55%" stop-color="#ffbe0b" />
+                <stop offset="100%" stop-color="#d97706" />
+              </linearGradient>
+            </defs>
+
+            <!-- Foguinho saindo pelo rabinho ao peidar -->
+            <g class="fart-flame">
+              <path d="M24 75 C14 66, 8 74, 15 80 C9 82, 13 90, 22 84 Z" fill="#ff7b00" />
+              <path d="M22 77 C16 72, 13 77, 17 81 C14 82, 16 86, 21 82 Z" fill="#ffd166" />
+            </g>
+
+            <!-- Asas (aparecem quando voa e somem quando desce para andar ou sentar) -->
+            <g class="wings-group">
+              <path class="wing-l" d="M40 58 C18 40, 10 60, 25 72 C31 66, 36 68, 40 66 Z" fill="#6b0f2b" />
+              <path class="wing-r" d="M80 58 C102 40, 110 60, 95 72 C89 66, 84 68, 80 66 Z" fill="#6b0f2b" />
+            </g>
+
+            <!-- Tridente -->
+            <line x1="106" y1="30" x2="106" y2="96" stroke="#ffbe0b" stroke-width="3.6" stroke-linecap="round" />
+            <path d="M98 30 V43 C98 48 114 48 114 43 V30" fill="none" stroke="#ffbe0b" stroke-width="3.4" stroke-linecap="round" />
+            <line x1="106" y1="24" x2="106" y2="47" stroke="#ffbe0b" stroke-width="3.4" stroke-linecap="round" />
+
+            <!-- Rabinho com ponta -->
+            <path d="M44 86 Q24 90 28 72" fill="none" stroke="#b81237" stroke-width="4" stroke-linecap="round" />
+            <polygon points="28,68 23,76 33,76" fill="#ff2a55" />
+
+            <!-- Perninhas (aparecem quando anda ou senta; somem quando voa) -->
+            <g class="legs-group">
+              <g class="leg-l">
+                <rect x="50" y="92" width="6" height="14" rx="3" fill="#b81237" />
+                <ellipse cx="51" cy="107" rx="5.5" ry="3" fill="#ff2a55" />
+              </g>
+              <g class="leg-r">
+                <rect x="64" y="92" width="6" height="14" rx="3" fill="#b81237" />
+                <ellipse cx="67" cy="107" rx="5.5" ry="3" fill="#ff2a55" />
+              </g>
+            </g>
+
+            <!-- Corpo -->
+            <ellipse cx="60" cy="74" rx="20" ry="21" fill="url(#skinGrad)" />
+
+            <!-- Frente -->
+            <g class="front-view">
+              <circle cx="60" cy="47" r="24" fill="url(#skinGrad)" />
+              <!-- Chifrinhos dourados -->
+              <path d="M42 29 L31 11 L49 23 Z" fill="url(#goldHorn)" stroke="#5c2d06" stroke-width="1.8" stroke-linejoin="round" />
+              <path d="M78 29 L89 11 L71 23 Z" fill="url(#goldHorn)" stroke="#5c2d06" stroke-width="1.8" stroke-linejoin="round" />
+
+              <circle cx="51" cy="46" r="6" fill="#fff" />
+              <circle cx="69" cy="46" r="6" fill="#fff" />
+              <circle cx="52" cy="47" r="2.7" fill="#14081a" />
+              <circle cx="68" cy="47" r="2.7" fill="#14081a" />
+              <line x1="44" y1="40" x2="56" y2="43" stroke="#3b0514" stroke-width="2.8" stroke-linecap="round" />
+              <line x1="76" y1="40" x2="64" y2="43" stroke="#3b0514" stroke-width="2.8" stroke-linecap="round" />
+              <path d="M48 55 Q60 65 72 55" fill="none" stroke="#3b0514" stroke-width="2.6" stroke-linecap="round" />
+              <polygon points="52,57 54,61 56,58" fill="#fff" />
+              <polygon points="64,58 66,61 68,57" fill="#fff" />
+
+              <!-- Traminhas na boca ao arrotar -->
+              <g class="burp-waves" stroke="#ffd166" stroke-width="2.2" stroke-linecap="round" fill="none">
+                <path d="M74 54 Q77 51 80 54 Q83 57 86 54" />
+                <path d="M76 60 Q79 57 82 60 Q85 63 88 60" />
+              </g>
+
+              <!-- Fumaça saindo pela boca ao bocejar -->
+              <g class="yawn-smoke" fill="rgba(226, 214, 245, 0.85)">
+                <circle cx="72" cy="52" r="4.5" />
+                <circle cx="79" cy="45" r="6" />
+                <circle cx="85" cy="36" r="7.5" />
+              </g>
+            </g>
+
+            <!-- Costas (quando ele vira de costas) -->
+            <g class="back-view">
+              <circle cx="60" cy="47" r="24" fill="url(#skinGrad)" />
+              <path d="M42 29 L31 11 L49 23 Z" fill="url(#goldHorn)" stroke="#5c2d06" stroke-width="1.8" stroke-linejoin="round" />
+              <path d="M78 29 L89 11 L71 23 Z" fill="url(#goldHorn)" stroke="#5c2d06" stroke-width="1.8" stroke-linejoin="round" />
+              <polygon points="60,56 56,64 64,64" fill="#ffb833" />
+              <polygon points="60,67 56,75 64,75" fill="#ffb833" />
+              <polygon points="60,78 56,86 64,86" fill="#ffb833" />
+            </g>
+          </svg>
+        </div>
+      </div>
+    </main>
+
+    <div class="chips">
+      <button class="chip surprise" id="btn-surprise">⚡ Surpreende</button>
+      <button class="chip" data-q="Deveria sair hoje à noite?">🍻 Sair hoje?</button>
+      <button class="chip" data-q="Compro algo caro por impulso?">💸 Comprar por impulso?</button>
+      <button class="chip" data-q="Mando mensagem pra quem eu não deveria?">📱 Mandar mensagem?</button>
+      <button class="chip" data-q="Tomo café agora mesmo sendo tarde?">☕ Café de madrugada?</button>
+    </div>
+
+    <form class="input-bar" id="chat-form">
+      <input type="text" id="user-input" placeholder="Peça um mau conselho..." autocomplete="off" maxlength="250" />
+      <button type="submit" class="send-btn" id="send-btn">Enviar</button>
+    </form>
+
+    <div class="history-modal" id="history-modal">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong>Memória da Sessão</strong>
+        <button class="icon-btn" id="close-history">✕</button>
+      </div>
+      <div class="history-list" id="history-list"></div>
+    </div>
+  </div>
+
+  <script>
+    // Gera automaticamente o ícone PNG para a Tela de Início do iPhone (iOS)
+    (function generateIOSIcon() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 180;
+      canvas.height = 180;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#160d1f';
+      ctx.fillRect(0, 0, 180, 180);
+      ctx.font = '105px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('😈', 90, 96);
+      document.getElementById('apple-icon').href = canvas.toDataURL('image/png');
+    })();
+
+    const stage = document.getElementById('stage');
+    const demon = document.getElementById('demon');
+    const demonAnim = document.getElementById('demon-anim');
+    const moodText = document.getElementById('mood-text');
+    const userQuote = document.getElementById('user-quote');
+    const demonReply = document.getElementById('demon-reply');
+    const chatForm = document.getElementById('chat-form');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    let chatHistory = [];
+    let voiceEnabled = true;
+    let isBusy = false;
+    let isFrenzy = false;
+
+    // Estados possíveis: 'fly' (voando e mexendo), 'walk' (andando devagar), 'sit' (sentado), 'still' (parado)
+    let posePreference = 'auto';
+    let currentPose = 'fly';
+    let currentX = 0.5;
+    let currentY = 0.48;
+
+    let recentTapTimes = [];
+    let lastPokeIdx = -1;
+    const recentPokeLines = [];
+
+    let cycleTimeout = null;
+    let sparkTimeout = null;
+    let idleTimeout = null;
+    let reactTimeout = null;
+    let backTimeout = null;
+    let frenzyTimeout = null;
+    let audioCtx = null;
+
+    function getAudioCtx() {
+      if (!voiceEnabled) return null;
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      if (!audioCtx) audioCtx = new Ctx();
+      if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+      return audioCtx;
+    }
+
+    function playBurpSound() {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(145, now);
+      osc.frequency.exponentialRampToValueAtTime(68, now + 0.24);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.14, now + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.27);
+    }
+
+    function playFartSound() {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(190, now);
+      osc.frequency.linearRampToValueAtTime(115, now + 0.14);
+      osc.frequency.linearRampToValueAtTime(150, now + 0.28);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.15, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.31);
+    }
+
+    const pokeActionsBase = [
+      { type: 'burp', cls: 'react-burp', duration: 680, mood: "*BRUUUUP!* Traminha na boca", actionLabel: "soltando um arroto com traminha na boca", sound: 'burp' },
+      { type: 'yawn', cls: 'react-yawn', duration: 950, mood: "*Bocejou soltando fumaça*", actionLabel: "bocejando e soltando fumaça pela boca" },
+      { type: 'fart', cls: 'react-fart', duration: 720, mood: "*Soltou um foguinho pelo rabinho*", actionLabel: "soltando um foguinho pelo rabinho", sound: 'fart' },
+      { type: 'swim', cls: 'react-swim', duration: 850, mood: "Batendo água no ar", actionLabel: "batendo água no ar" },
+      { type: 'flip', cls: 'react-flip', duration: 750, mood: "Mandou uma pirueta", actionLabel: "mandando uma pirueta no ar" },
+      { type: 'back', cls: 'react-back', duration: 1600, turnBack: true, mood: "Virou de costas", actionLabel: "virado de costas" },
+      { type: 'ghost', cls: '', duration: 900, ghost: true, mood: "Te deu um vácuo", actionLabel: "no vácuo" },
+      { type: 'hop', cls: 'react-hop', duration: 550, mood: "Pulando com chifre dourado", actionLabel: "pulando com chifre dourado e tridente" },
+      { type: 'scare', cls: 'react-scare', duration: 550, mood: "Tomou um susto", actionLabel: "assustado com a cutucada" },
+      { type: 'spin', cls: 'react-spin', duration: 600, mood: "Girou no ar", actionLabel: "girando sem parar" },
+      { type: 'wink', cls: 'react-wink', duration: 550, mood: "*Piscou malandro*", actionLabel: "piscando malandro" }
+    ];
+
+    const pokeOpeners = [
+      "Ei, mortal!",
+      "Opa, calma aí!",
+      "Qual foi, zé?",
+      "Olha a folga!",
+      "Chegou chegando, hein?",
+      "Tô de olho em você!",
+      "Respeita o chifre dourado!",
+      "Acha que é fácil?"
+    ];
+
+    const pokeClosers = [
+      "Já bolei três ideias ruins pra você.",
+      "Não me testa que o caos piora.",
+      "Manda logo uma dúvida decente!",
+      "Hoje o submundo tá inspirado.",
+      "Se arrependimento matasse, já tava feio.",
+      "Tô só esperando você errar de novo.",
+      "Acha que isso vai melhorar seu dia?",
+      "O tridente tá coçando pra entrar em ação."
+    ];
+
+    function buildPokeLine(act) {
+      if (act.ghost) return "...";
+      for (let i = 0; i < 12; i++) {
+        const op = pokeOpeners[Math.floor(Math.random() * pokeOpeners.length)];
+        const cl = pokeClosers[Math.floor(Math.random() * pokeClosers.length)];
+        const sentence = `${op} Tô aqui ${act.actionLabel} — ${cl}`;
+        if (!recentPokeLines.includes(sentence)) {
+          recentPokeLines.push(sentence);
+          if (recentPokeLines.length > 25) recentPokeLines.shift();
+          return sentence;
+        }
+      }
+      const op = pokeOpeners[Math.floor(Math.random() * pokeOpeners.length)];
+      const cl = pokeClosers[Math.floor(Math.random() * pokeClosers.length)];
+      return `${op} Tô aqui ${act.actionLabel} — ${cl}`;
+    }
+
+    const idleComments = [
+      "Dez segundos parado me encarando... vai pedir um caos ou vai só olhar?",
+      "Silêncio estranho aí... aposto que tá pensando em fazer besteira.",
+      "Olhei pra você, você olhou pra mim... nenhum dos dois tem juízo.",
+      "Tô aqui de boa e você aí parado. Manda uma dúvida logo!"
+    ];
+
+    const surpriseQuestions = [
+      "Me dá um mau conselho absurdo para hoje",
+      "Qual a escolha mais impulsiva e divertida que eu posso fazer agora?",
+      "Como transformar uma decisão simples num drama engraçado?",
+      "Qual a pior desculpa criativa para não fazer o que eu devia?"
+    ];
+
+    const freeSparkQuestions = [
+      "Me dá um conselho bônus de foguinho bem caótico e engraçado",
+      "Solta um mau conselho rápido sobre grana ou diversão",
+      "Qual a ideia mais duvidosa e divertida para hoje?"
+    ];
+
+    const frenzyInsults = [
+      "SEU BOCÓ! CABEÇA DE BAGRE!",
+      "ZÉ RUELA! SOLTA O MEU CHIFRE!",
+      "TRASTE! ESQUENTADINHO DE MEIA TIGELA!",
+      "BANANÃO! QUER VIRAR CHURRASCO DE ENXOFRE?!"
+    ];
+
+    function randBetween(minMs, maxMs) {
+      return minMs + Math.random() * (maxMs - minMs);
+    }
+
+    function applyPoseClass(pose) {
+      currentPose = pose;
+      demon.classList.remove('walking', 'sitting', 'still');
+      if (pose === 'walk') demon.classList.add('walking');
+      if (pose === 'sit') demon.classList.add('sitting');
+      if (pose === 'still') demon.classList.add('still');
+
+      if (!isFrenzy && !isBusy) {
+        if (pose === 'fly') moodText.textContent = "Voando devagar...";
+        else if (pose === 'walk') moodText.textContent = "Andando de boa...";
+        else if (pose === 'sit') moodText.textContent = "Sentadinho no chão...";
+        else moodText.textContent = "Parado quieto...";
+      }
+    }
+
+    function moveTo(xRatio, yRatio, durationSec = 2.6, forceFloor = false) {
+      currentX = Math.max(0.08, Math.min(0.92, xRatio));
+      currentY = Math.max(0.12, Math.min(0.88, yRatio));
+
+      const rect = stage.getBoundingClientRect();
+      const maxX = Math.max(80, rect.width - 70);
+      const minX = 70;
+      const minY = 66;
+      const maxY = Math.max(minY + 30, rect.height - 62);
+
+      const px = minX + currentX * (maxX - minX);
+      const py = forceFloor ? maxY : minY + currentY * (maxY - minY);
+
+      demon.style.transition = `left ${durationSec}s ease-in-out, top ${durationSec}s ease-in-out`;
+      demon.style.left = `${px}px`;
+      demon.style.top = `${py}px`;
+    }
+
+    function runNaturalCycle() {
+      clearTimeout(cycleTimeout);
+      if (isBusy || isFrenzy) {
+        cycleTimeout = setTimeout(runNaturalCycle, 1800);
+        return;
+      }
+
+      if (posePreference !== 'auto') {
+        if (posePreference === 'fly') {
+          applyPoseClass('fly');
+          moveTo(Math.random(), Math.random(), 2.8, false);
+          cycleTimeout = setTimeout(runNaturalCycle, randBetween(4200, 6800));
+        } else if (posePreference === 'walk') {
+          applyPoseClass('walk');
+          moveTo(Math.random(), 1, 3.2, true);
+          cycleTimeout = setTimeout(runNaturalCycle, randBetween(4200, 6800));
+        } else if (posePreference === 'sit') {
+          applyPoseClass('sit');
+          moveTo(currentX, 1, 1.4, true);
+          cycleTimeout = setTimeout(runNaturalCycle, 5000);
+        } else {
+          applyPoseClass('still');
+          cycleTimeout = setTimeout(runNaturalCycle, 5000);
+        }
+        return;
+      }
+
+      // Modo automático tranquilo: ele escolhe entre voar devagar, descer e andar, sentar ou ficar parado
+      const roll = Math.random();
+      if (roll < 0.34) {
+        applyPoseClass('fly');
+        moveTo(Math.random(), Math.random(), 2.9, false);
+        cycleTimeout = setTimeout(runNaturalCycle, randBetween(4500, 7500));
+      } else if (roll < 0.62) {
+        applyPoseClass('walk');
+        moveTo(Math.random(), 1, 3.4, true);
+        cycleTimeout = setTimeout(runNaturalCycle, randBetween(4500, 7500));
+      } else if (roll < 0.82) {
+        applyPoseClass('sit');
+        moveTo(currentX, 1, 1.5, true);
+        cycleTimeout = setTimeout(runNaturalCycle, randBetween(4500, 7500));
+      } else {
+        applyPoseClass('still');
+        cycleTimeout = setTimeout(runNaturalCycle, randBetween(4000, 7000));
+      }
+    }
+
+    document.querySelectorAll('.pose-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        posePreference = btn.dataset.pose;
+        document.querySelectorAll('.pose-btn').forEach(b => b.classList.toggle('active', b === btn));
+        runNaturalCycle();
+      });
+    });
+
+    function resetIdleTimer() {
+      clearTimeout(idleTimeout);
+      idleTimeout = setTimeout(() => {
+        if (isBusy || isFrenzy) return;
+        const line = idleComments[Math.floor(Math.random() * idleComments.length)];
+        moodText.textContent = "Reparou que você tá parado";
+        userQuote.textContent = "*Você ficou 10s parado encarando*";
+        demonReply.textContent = `"${line}"`;
+        speak(line);
+      }, 10000);
+    }
+
+    function speak(text) {
+      if (!voiceEnabled || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const clean = text.replace(/["*]/g, '').trim();
+      if (!clean || clean === '...') return;
+      const utter = new SpeechSynthesisUtterance(clean);
+      utter.lang = 'pt-BR';
+      utter.pitch = 0.78;
+      utter.rate = 0.94;
+      const voices = window.speechSynthesis.getVoices();
+      const ptMale = voices.find(v => v.lang.includes('pt') && /daniel|felipe|ricardo|male|masculin/i.test(v.name))
+                  || voices.find(v => v.lang.includes('pt'));
+      if (ptMale) utter.voice = ptMale;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function triggerFrenzyMode() {
+      isFrenzy = true;
+      clearTimeout(frenzyTimeout);
+      demonAnim.classList.remove('turned-back');
+      stage.classList.add('frenzy');
+      moodText.textContent = "DIABÃO FRENÉTICO!";
+
+      let idx = 0;
+      demonReply.textContent = `"${frenzyInsults[0]}"`;
+      speak(frenzyInsults[0]);
+
+      const interval = setInterval(() => {
+        idx += 1;
+        if (idx < frenzyInsults.length) {
+          demonReply.textContent = `"${frenzyInsults[idx]}"`;
+        }
+      }, 700);
+
+      frenzyTimeout = setTimeout(() => {
+        clearInterval(interval);
+        isFrenzy = false;
+        stage.classList.remove('frenzy');
+        recentTapTimes = [];
+        applyPoseClass(posePreference === 'auto' ? 'fly' : posePreference);
+        demonReply.textContent = '"Pronto, já xinguei por 3 segundos. Agora fala o que você quer!"';
+        runNaturalCycle();
+        resetIdleTimer();
+      }, 3000);
+    }
+
+    demon.addEventListener('click', () => {
+      resetIdleTimer();
+
+      const now = Date.now();
+      recentTapTimes = recentTapTimes.filter(t => now - t <= 2500);
+      recentTapTimes.push(now);
+
+      if (recentTapTimes.length >= 10 && !isFrenzy) {
+        triggerFrenzyMode();
+        return;
+      }
+
+      if (isFrenzy) return;
+
+      const act = pokeActionsBase[Math.floor(Math.random() * pokeActionsBase.length)];
+      let idx = Math.floor(Math.random() * pokeActionsBase.length);
+      if (pokeActionsBase.length > 1 && idx === lastPokeIdx) {
+        idx = (idx + 1) % pokeActionsBase.length;
+      }
+      lastPokeIdx = idx;
+      const chosenAct = pokeActionsBase[idx] || act;
+
+      demonAnim.classList.remove(
+        'react-hop',
+        'react-scare',
+        'react-spin',
+        'react-flip',
+        'react-swim',
+        'react-back',
+        'react-yawn',
+        'react-wink',
+        'react-burp',
+        'react-fart'
+      );
+      void demonAnim.offsetWidth;
+
+      if (chosenAct.cls) {
+        demonAnim.classList.add(chosenAct.cls);
+      }
+
+      if (chosenAct.sound === 'burp') playBurpSound();
+      if (chosenAct.sound === 'fart') playFartSound();
+
+      clearTimeout(backTimeout);
+      if (chosenAct.turnBack) {
+        demonAnim.classList.add('turned-back');
+        backTimeout = setTimeout(() => {
+          demonAnim.classList.remove('turned-back');
+        }, chosenAct.duration);
+      } else {
+        demonAnim.classList.remove('turned-back');
+      }
+
+      const line = buildPokeLine(chosenAct);
+      moodText.textContent = chosenAct.mood;
+      userQuote.textContent = "*Você cutucou o Capetinha*";
+
+      if (chosenAct.ghost) {
+        demonReply.textContent = "*Ele te deu um vácuo e fingiu que não ouviu*";
+      } else {
+        demonReply.textContent = `"${line}"`;
+        speak(line);
+      }
+
+      clearTimeout(reactTimeout);
+      reactTimeout = setTimeout(() => {
+        if (chosenAct.cls) demonAnim.classList.remove(chosenAct.cls);
+      }, chosenAct.duration);
+    });
+
+    // Foguinhos aparecendo entre 40s e 1m30s para dar conselho grátis
+    function scheduleNextSpark() {
+      clearTimeout(sparkTimeout);
+      const waitMs = randBetween(40000, 90000);
+      sparkTimeout = setTimeout(() => {
+        if (!stage.querySelector('.fire-spark')) {
+          spawnSpark();
+        } else {
+          scheduleNextSpark();
+        }
+      }, waitMs);
+    }
+
+    function spawnSpark() {
+      if (stage.querySelector('.fire-spark')) {
+        scheduleNextSpark();
+        return;
+      }
+
+      const rect = stage.getBoundingClientRect();
+      const spark = document.createElement('button');
+      spark.type = 'button';
+      spark.className = 'fire-spark';
+      spark.textContent = '🔥';
+      spark.title = 'Conselho grátis!';
+
+      const minX = 24;
+      const maxX = Math.max(minX + 20, rect.width - 64);
+      const minY = 54;
+      const maxY = Math.max(minY + 20, rect.height - 72);
+
+      spark.style.left = `${minX + Math.random() * (maxX - minX)}px`;
+      spark.style.top = `${minY + Math.random() * (maxY - minY)}px`;
+
+      const lifeMs = randBetween(6500, 12500);
+      const expireTimer = setTimeout(() => {
+        spark.remove();
+        scheduleNextSpark();
+      }, lifeMs);
+
+      spark.addEventListener('click', () => {
+        clearTimeout(expireTimer);
+        spark.remove();
+        scheduleNextSpark();
+        resetIdleTimer();
+        if (!isBusy) {
+          const bonusPrompt = freeSparkQuestions[Math.floor(Math.random() * freeSparkQuestions.length)];
+          askDemon(bonusPrompt, "Foguinho 🔥 (Conselho grátis)");
+        }
+      });
+
+      stage.appendChild(spark);
+    }
+
+    async function askDemon(question, displayLabel) {
+      const text = String(question || '').trim();
+      if (!text || isBusy) return;
+
+      resetIdleTimer();
+      clearTimeout(cycleTimeout);
+      isBusy = true;
+      sendBtn.disabled = true;
+
+      // Desce e fica parado de boa enquanto responde
+      demonAnim.classList.remove('turned-back');
+      applyPoseClass('still');
+      moveTo(0.5, 1, 1.0, true);
+
+      moodText.textContent = "Parado pensando na resposta...";
+      userQuote.textContent = `Você: "${displayLabel || text}"`;
+      demonReply.textContent = "Deixa eu pensar no pior caminho possível...";
+
+      chatHistory.push({ role: 'user', parts: [{ text }] });
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 24000);
+
+      try {
+        const res = await fetch('/api/conselho', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ history: chatHistory }),
+          signal: controller.signal
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          const serverErr = data && typeof data.error === 'string' && data.error.trim()
+            ? data.error.trim()
+            : `Erro ${res.status} ao falar com /api/conselho.`;
+          demonReply.textContent = `"${serverErr}"`;
+          moodText.textContent = `Falha (${res.status})`;
+          return;
+        }
+
+        const reply = data && typeof data.reply === 'string' && data.reply.trim()
+          ? data.reply.trim()
+          : "Vai na fé e depois lida com as consequências.";
+
+        chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+        demonReply.textContent = `"${reply}"`;
+        moodText.textContent = "Respondeu parado de boa";
+        speak(reply);
+      } catch (e) {
+        demonReply.textContent = '"Perdi o sinal com o submundo. Tenta de novo!"';
+        moodText.textContent = "Sem sinal";
+      } finally {
+        clearTimeout(timeoutId);
+        isBusy = false;
+        sendBtn.disabled = false;
+        // Fica mais um pouquinho parado após responder antes de voltar ao ciclo normal
+        cycleTimeout = setTimeout(runNaturalCycle, 3200);
+        resetIdleTimer();
+      }
+    }
+
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = userInput.value;
+      userInput.value = '';
+      askDemon(val);
+    });
+
+    document.querySelectorAll('.chip[data-q]').forEach(btn => {
+      btn.addEventListener('click', () => askDemon(btn.dataset.q));
+    });
+
+    document.getElementById('btn-surprise').addEventListener('click', () => {
+      const pick = surpriseQuestions[Math.floor(Math.random() * surpriseQuestions.length)];
+      askDemon(pick, `Surpreende: ${pick}`);
+    });
+
+    document.getElementById('btn-voice').addEventListener('click', (e) => {
+      voiceEnabled = !voiceEnabled;
+      e.currentTarget.textContent = voiceEnabled ? '🔊' : '🔇';
+      if (!voiceEnabled) {
+        window.speechSynthesis.cancel();
+        if (audioCtx && audioCtx.state === 'running') {
+          audioCtx.suspend().catch(() => {});
+        }
+      } else if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      resetIdleTimer();
+      chatHistory = [];
+      userQuote.textContent = "Memória apagada";
+      demonReply.textContent = '"Pronto, fingi que nunca te vi. Qual a próxima besteira?"';
+      moodText.textContent = "Pronto para recomeçar";
+    });
+
+    // Histórico modal
+    const modal = document.getElementById('history-modal');
+    const historyList = document.getElementById('history-list');
+    document.getElementById('btn-history').addEventListener('click', () => {
+      historyList.innerHTML = chatHistory.length
+        ? chatHistory.map(m => `<div class="msg-bubble ${m.role === 'user' ? 'msg-user' : 'msg-demon'}">${m.parts[0].text}</div>`).join('')
+        : '<p style="color:#a695b8; text-align:center;">Nenhuma conversa ainda.</p>';
+      modal.classList.add('open');
+    });
+    document.getElementById('close-history').addEventListener('click', () => modal.classList.remove('open'));
+
+    userInput.addEventListener('input', resetIdleTimer);
+    document.addEventListener('pointerdown', resetIdleTimer, { passive: true });
+
+    applyPoseClass('fly');
+    moveTo(0.5, 0.48, 0.4, false);
+    cycleTimeout = setTimeout(runNaturalCycle, 3200);
+    scheduleNextSpark();
+    resetIdleTimer();
+  </script>
+</body>
+</html>
