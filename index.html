@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Capetinha AI</title>
+  <style>
+    :root {
+      --bg-void: #050408;
+      --bg-panel: rgba(16, 9, 24, 0.88);
+      --border-neon: rgba(255, 42, 85, 0.34);
+      --neon-red: #ff2a55;
+      --neon-orange: #ff7b00;
+      --neon-cyan: #22d3ee;
+      --text-main: #f5f3f8;
+      --text-muted: #a699b3;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      background:
+        radial-gradient(circle at 50% 15%, rgba(255, 42, 85, 0.16), transparent 50%),
+        radial-gradient(circle at 80% 75%, rgba(255, 123, 0, 0.1), transparent 48%),
+        var(--bg-void);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      height: 100%;
+      max-height: 940px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Topo */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 18px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-neon);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mini-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      background: linear-gradient(135deg, rgba(255, 42, 85, 0.28), rgba(255, 123, 0, 0.22));
+      border: 1px solid rgba(255, 42, 85, 0.55);
+      flex-shrink: 0;
+    }
+
+    .brand-info {
+      min-width: 0;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 700;
+      font-size: 15.5px;
+    }
+
+    .online-tag {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.14);
+      border: 1px solid rgba(74, 222, 128, 0.35);
+    }
+
+    .status-txt {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    .reset-btn {
+      height: 34px;
+      padding: 0 11px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .reset-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Card de destaque da pergunta e resposta */
+    .advice-card {
+      padding: 11px 13px;
+      border-radius: 16px;
+      background: rgba(255, 42, 85, 0.08);
+      border: 1px solid var(--border-neon);
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .advice-q {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .advice-a {
+      font-size: 14px;
+      line-height: 1.42;
+      font-weight: 600;
+      color: #ffffff;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    /* Mundinho livre do diabinho */
+    .world {
+      position: relative;
+      flex: 1;
+      min-height: 220px;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 50% 55%, rgba(255, 42, 85, 0.12), transparent 62%),
+        linear-gradient(rgba(34, 211, 238, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 42, 85, 0.04) 1px, transparent 1px),
+        #07060c;
+      background-size: auto, 28px 28px, 28px 28px, auto;
+      border: 1px solid rgba(255, 42, 85, 0.35);
+      box-shadow: inset 0 0 32px rgba(255, 42, 85, 0.12);
+      overflow: hidden;
+    }
+
+    .world-hud {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .hud-pill {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(7, 6, 12, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #d6cde0;
+    }
+
+    .hud-pill.mode {
+      color: #67e8f9;
+      border-color: rgba(34, 211, 238, 0.35);
+    }
+
+    .world-toast {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 92%;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(12, 8, 18, 0.92);
+      border: 1px solid rgba(255, 123, 0, 0.55);
+      color: #ffd59e;
+      font-size: 11.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    /* Foguinhos surpresa (conselho grátis) */
+    .spark-btn {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 190, 50, 0.75);
+      background: radial-gradient(circle, rgba(255, 180, 30, 0.35), rgba(255, 42, 85, 0.22));
+      box-shadow: 0 0 16px rgba(255, 123, 0, 0.65);
+      font-size: 20px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      z-index: 4;
+      animation: sparkPop 1.3s ease-in-out infinite;
+      touch-action: manipulation;
+    }
+
+    .spark-btn:active {
+      transform: scale(1.25);
+    }
+
+    @keyframes sparkPop {
+      0%, 100% { transform: scale(0.95) rotate(-6deg); }
+      50% { transform: scale(1.12) rotate(6deg); }
+    }
+
+    /* Movimentação livre do diabinho */
+    .devil-wrap {
+      position: absolute;
+      left: 50%;
+      top: 52%;
+      transform: translate(-50%, -50%);
+      transition: left 1.15s ease-in-out, top 1.15s ease-in-out;
+      z-index: 2;
+    }
+
+    .devil-btn {
+      position: relative;
+      width: 118px;
+      height: 112px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      outline: none;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .devil-aura {
+      position: absolute;
+      width: 86px;
+      height: 86px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 42, 85, 0.36), rgba(255, 123, 0, 0.1) 62%, transparent 78%);
+      pointer-events: none;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .devil-svg {
+      width: 112px;
+      height: 106px;
+      position: relative;
+      pointer-events: none;
+      transform-origin: center center;
+      filter: drop-shadow(0 6px 12px rgba(255, 42, 85, 0.38));
+    }
+
+    /* Bater asinhas quando voa */
+    .devil-wrap.flying .wing-left {
+      transform-origin: 36px 58px;
+      animation: flapLeft 0.34s ease-in-out infinite alternate;
+    }
+
+    .devil-wrap.flying .wing-right {
+      transform-origin: 76px 58px;
+      animation: flapRight 0.34s ease-in-out infinite alternate;
+    }
+
+    @keyframes flapLeft {
+      from { transform: rotate(12deg); }
+      to { transform: rotate(-22deg); }
+    }
+
+    @keyframes flapRight {
+      from { transform: rotate(-12deg); }
+      to { transform: rotate(22deg); }
+    }
+
+    /* Reações ao toque */
+    .devil-svg.act-hop { animation: actHop 0.48s cubic-bezier(0.2, 1.3, 0.35, 1); }
+    .devil-svg.act-scare { animation: actScare 0.5s ease-out; }
+    .devil-svg.act-spin { animation: actSpin 0.55s ease-out; }
+    .devil-svg.act-yawn { animation: actYawn 0.7s ease-in-out; }
+    .devil-svg.act-wink { animation: actWink 0.45s ease-in-out; }
+    .devil-svg.act-burp { animation: actBurp 0.5s ease-out; }
+    .devil-svg.act-fart { animation: actFart 0.55s ease-out; }
+
+    /* Modo diabão frenético (10 cliques rápidos) */
+    .world.frenzy {
+      border-color: #ff2a55;
+      box-shadow:
+        inset 0 0 46px rgba(255, 42, 85, 0.42),
+        0 0 26px rgba(255, 42, 85, 0.5);
+      animation: worldShake 0.14s linear infinite;
+    }
+
+    .world.frenzy .devil-aura {
+      transform: scale(1.6);
+      background: radial-gradient(circle, rgba(255, 42, 85, 0.85), rgba(255, 123, 0, 0.45) 60%, transparent 80%);
+    }
+
+    .world.frenzy .devil-svg {
+      transform: scale(1.26);
+      animation: frenzyDance 0.16s linear infinite;
+      filter: drop-shadow(0 0 18px rgba(255, 42, 85, 0.95));
+    }
+
+    @keyframes actHop {
+      0% { transform: translateY(0) scale(1, 1); }
+      35% { transform: translateY(-18px) scale(0.92, 1.12); }
+      75% { transform: translateY(2px) scale(1.08, 0.92); }
+      100% { transform: translateY(0) scale(1, 1); }
+    }
+
+    @keyframes actScare {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.22) translateX(-6px); }
+      55% { transform: scale(0.88) translateX(6px); }
+      100% { transform: scale(1) translateX(0); }
+    }
+
+    @keyframes actSpin {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.1); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes actYawn {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08, 0.94); }
+    }
+
+    @keyframes actWink {
+      0%, 100% { transform: rotate(0deg); }
+      45% { transform: rotate(-10deg) scale(1.07); }
+      80% { transform: rotate(7deg); }
+    }
+
+    @keyframes actBurp {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.18, 0.92); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes actFart {
+      0% { transform: translateX(0); }
+      30% { transform: translateX(-7px) rotate(-7deg); }
+      65% { transform: translateX(7px) rotate(7deg); }
+      100% { transform: translateX(0) rotate(0deg); }
+    }
+
+    @keyframes frenzyDance {
+      0% { transform: scale(1.26) rotate(-8deg); }
+      50% { transform: scale(1.3) rotate(8deg); }
+      100% { transform: scale(1.26) rotate(-8deg); }
+    }
+
+    @keyframes worldShake {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(-2px, 1px); }
+      50% { transform: translate(2px, -1px); }
+      75% { transform: translate(-1px, -2px); }
+    }
+
+    /* Atalhos + Surpreende */
+    .shortcuts {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+
+    .shortcuts::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      flex: 0 0 auto;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .chip.surprise {
+      background: linear-gradient(135deg, rgba(255, 42, 85, 0.25), rgba(255, 123, 0, 0.24));
+      border-color: rgba(255, 123, 0, 0.55);
+      color: #ffe3c2;
+    }
+
+    .chip:active {
+      transform: scale(0.95);
+    }
+
+    /* Barra de envio */
+    .composer {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+      border-radius: 18px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-neon);
+    }
+
+    .input {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 13px;
+      border-radius: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #06050a;
+      color: var(--text-main);
+      font-size: 14px;
+      outline: none;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .input:focus {
+      border-color: var(--neon-cyan);
+    }
+
+    .send-btn {
+      padding: 11px 16px;
+      border-radius: 13px;
+      border: none;
+      background: linear-gradient(135deg, var(--neon-red), var(--neon-orange));
+      color: #fff;
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor: pointer;
+    }
+
+    .send-btn:active {
+      transform: scale(0.95);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mini-avatar">😈</div>
+        <div class="brand-info">
+          <div class="brand-title">
+            <span>Capetinha AI</span>
+            <span class="online-tag">online</span>
+          </div>
+          <div class="status-txt" id="statusTxt">solto no mundinho • pronto pro caos</div>
+        </div>
+      </div>
+      <button type="button" class="reset-btn" id="resetBtn">Limpar</button>
+    </header>
+
+    <section class="advice-card" aria-live="polite">
+      <div class="advice-q" id="adviceQ">Você: "Me dá um mau conselho"</div>
+      <div class="advice-a" id="adviceA">Ele tá voando e andando pelo mundinho. Clica num foguinho 🔥 ou manda uma dúvida!</div>
+    </section>
+
+    <section class="world" id="world" aria-label="Mundinho do Capetinha AI">
+      <div class="world-hud">
+        <span class="hud-pill mode" id="moveModePill">voando</span>
+        <span class="hud-pill" id="tapPill">toques: 0</span>
+      </div>
+
+      <div class="devil-wrap flying" id="devilWrap">
+        <button type="button" class="devil-btn" id="devilBtn" aria-label="Cutucar o diabinho">
+          <span class="devil-aura"></span>
+          <svg class="devil-svg" id="devilSvg" viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Asinhas -->
+            <path class="wing-left" d="M36 58C20 44 12 52 17 63C11 66 15 76 26 72C24 78 32 82 39 72" fill="#991b34" stroke="#26050e" stroke-width="2.6" stroke-linejoin="round"/>
+            <path class="wing-right" d="M76 58C92 44 100 52 95 63C101 66 97 76 86 72C88 78 80 82 73 72" fill="#991b34" stroke="#26050e" stroke-width="2.6" stroke-linejoin="round"/>
+
+            <!-- Tridente na mão direita -->
+            <path d="M104 28V94" stroke="#ffbe0b" stroke-width="3.6" stroke-linecap="round"/>
+            <path d="M96 28V42C96 47 112 47 112 42V28" stroke="#ffbe0b" stroke-width="3.4" stroke-linecap="round"/>
+            <path d="M104 23V46" stroke="#ffbe0b" stroke-width="3.4" stroke-linecap="round"/>
+
+            <!-- Chifres marrentos -->
+            <path d="M40 36L31 14L49 29" fill="#ff2a55" stroke="#26050e" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M72 36L81 14L63 29" fill="#ff2a55" stroke="#26050e" stroke-width="3" stroke-linejoin="round"/>
+
+            <!-- Corpo cartunesco -->
+            <path d="M41 68C32 72 28 84 37 89C43 92 47 84 46 78" fill="#ff2a55" stroke="#26050e" stroke-width="3" stroke-linecap="round"/>
+            <path d="M71 68C84 68 94 61 98 52" fill="#ff2a55" stroke="#26050e" stroke-width="3" stroke-linecap="round"/>
+            <ellipse cx="56" cy="74" rx="18" ry="22" fill="#ff2a55" stroke="#26050e" stroke-width="3"/>
+            <path d="M44 92C41 102 53 104 56 95C59 104 71 102 68 92" fill="#ff2a55" stroke="#26050e" stroke-width="3" stroke-linejoin="round"/>
+
+            <!-- Rabinho com ponta -->
+            <path d="M42 88C25 90 22 76 33 73" stroke="#ff2a55" stroke-width="3.6" stroke-linecap="round"/>
+            <path d="M31 69L39 71L34 78Z" fill="#ff2a55" stroke="#26050e" stroke-width="1.6"/>
+
+            <!-- Cabeça e sorriso serrilhado da referência -->
+            <ellipse cx="56" cy="48" rx="22" ry="20" fill="#ff2a55" stroke="#26050e" stroke-width="3"/>
+            <path d="M36 53C38 66 74 66 76 53C68 58 44 58 36 53Z" fill="#ffffff" stroke="#26050e" stroke-width="2.4" stroke-linejoin="round"/>
+            <path d="M42 56L45 62L48 56.5L51 62.5L54 56.8L57 62.5L60 56.8L63 62.5L66 56.5L69 62L71 56" stroke="#26050e" stroke-width="2" stroke-linejoin="round"/>
+
+            <!-- Olhos semicerrados -->
+            <ellipse cx="47" cy="47" rx="7.5" ry="6.5" fill="#ffffff" stroke="#26050e" stroke-width="2.2"/>
+            <ellipse cx="65" cy="47" rx="7.5" ry="6.5" fill="#ffffff" stroke="#26050e" stroke-width="2.2"/>
+            <circle cx="48.5" cy="48" r="2.7" fill="#09080f"/>
+            <circle cx="64.5" cy="48" r="2.7" fill="#09080f"/>
+            <path d="M39 44H55V47H39Z" fill="#ff2a55"/>
+            <path d="M57 44H73V47H57Z" fill="#ff2a55"/>
+            <path d="M39 45H55" stroke="#26050e" stroke-width="2.6" stroke-linecap="round"/>
+            <path d="M57 45H73" stroke="#26050e" stroke-width="2.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="world-toast" id="worldToast">Cutuca o diabinho ou clica num foguinho quando aparecer!</div>
+    </section>
+
+    <div class="shortcuts">
+      <button type="button" class="chip surprise" id="surpriseBtn">⚡ Surpreende</button>
+      <button type="button" class="chip" data-prompt="Devo sair hoje à noite mesmo sem dinheiro?">🍻 Sair hoje?</button>
+      <button type="button" class="chip" data-prompt="Devo comprar algo caro por impulso agora?">💸 Comprar por impulso?</button>
+      <button type="button" class="chip" data-prompt="Devo mandar mensagem agora para quem não devo?">📱 Mandar mensagem?</button>
+    </div>
+
+    <form class="composer" id="composer">
+      <input
+        type="text"
+        class="input"
+        id="promptInput"
+        placeholder="Peça um mau conselho..."
+        maxlength="300"
+        autocomplete="off"
+      />
+      <button type="submit" class="send-btn" id="sendBtn">Enviar</button>
+    </form>
+  </div>
+
+  <script>
+    const world = document.getElementById('world');
+    const devilWrap = document.getElementById('devilWrap');
+    const devilBtn = document.getElementById('devilBtn');
+    const devilSvg = document.getElementById('devilSvg');
+    const worldToast = document.getElementById('worldToast');
+    const statusTxt = document.getElementById('statusTxt');
+    const moveModePill = document.getElementById('moveModePill');
+    const tapPill = document.getElementById('tapPill');
+    const adviceQ = document.getElementById('adviceQ');
+    const adviceA = document.getElementById('adviceA');
+    const resetBtn = document.getElementById('resetBtn');
+    const surpriseBtn = document.getElementById('surpriseBtn');
+    const composer = document.getElementById('composer');
+    const promptInput = document.getElementById('promptInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const chips = document.querySelectorAll('.chip[data-prompt]');
+
+    const IDLE_LINES = [
+      'Dez segundos parado me olhando... vai pedir um caos ou vai só admirar o tridente?',
+      'Tá achando que eu sou quadro na parede? Manda uma dúvida aí!',
+      'Silêncio estranho... aposto que tá pensando em fazer besteira.',
+      'Olhei pra você, você olhou pra mim... e nenhum dos dois tem juízo.'
+    ];
+
+    const POKE_REACTIONS = [
+      { cls: 'act-hop', txt: 'Boing! Pulei com tridente e tudo!' },
+      { cls: 'act-scare', txt: 'UAAAH! Que susto, zé! Quase derrubei a ponta do tridente!' },
+      { cls: 'act-spin', txt: 'Vuuupt! Girou o mundinho inteiro!' },
+      { cls: 'act-yawn', txt: 'Huuuaaah... *bocejo de brasa*... que preguiça.' },
+      { cls: 'act-wink', txt: 'Pisquei e já bolei um plano péssimo.' },
+      { cls: 'act-burp', txt: '*BRUUUUP!* Foi mal, o enxofre pegou pesado!' },
+      { cls: 'act-fart', txt: '*PFFFFT!* Alerta de fumaça suspeita na tela!' }
+    ];
+
+    const SURPRISE_PROMPTS = [
+      'Me dá um mau conselho absurdo para um dia comum',
+      'Se eu fosse tomar uma decisão impulsiva agora, qual seria a pior?',
+      'Como transformar uma escolha simples num drama engraçado?',
+      'Qual a pior desculpa criativa para não fazer o que eu devia?',
+      'Me convence a fazer algo fora da rotina de um jeito bem caótico'
+    ];
+
+    const FREE_SPARK_PROMPTS = [
+      'Me dá um conselho bônus de foguinho bem caótico e engraçado',
+      'Solta um mau conselho rápido sobre dinheiro ou diversão',
+      'Qual a ideia mais duvidosa e divertida para hoje?'
+    ];
+
+    const FRENZY_INSULTS = [
+      'SEU BOCÓ! CABEÇA DE BAGRE!',
+      'ZÉ RUELA! SOLTA O MEU CHIFRE!',
+      'TRASTE! ESQUENTADINHO DE MEIA TIGELA!',
+      'BANANÃO! QUER VIRAR CHURRASCO DE ENXOFRE?!',
+      'TONHÃO! TÁ ACHANDO QUE EU SOU SACO DE PANCADA?!'
+    ];
+
+    let totalTaps = 0;
+    let recentTapTimes = [];
+    let isFlying = true;
+    let isFrenzy = false;
+    let isSending = false;
+    let history = [];
+
+    let moveTimer = null;
+    let modeTimer = null;
+    let sparkTimer = null;
+    let animTimer = null;
+    let frenzyTimer = null;
+    let idleTimer = null;
+
+    function setToast(text) {
+      worldToast.textContent = text;
+    }
+
+    function resetIdle() {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        if (isFrenzy || isSending) return;
+        setToast(IDLE_LINES[Math.floor(Math.random() * IDLE_LINES.length)]);
+        statusTxt.textContent = 'notou que você ficou 10s parado...';
+      }, 10000);
+    }
+
+    function moveDevil() {
+      if (isFrenzy) return;
+      const rect = world.getBoundingClientRect();
+      const padX = 64;
+      const topMin = 48;
+      const bottomMax = Math.max(topMin + 24, rect.height - 76);
+      const minX = padX;
+      const maxX = Math.max(minX + 24, rect.width - padX);
+
+      const x = minX + Math.random() * (maxX - minX);
+      const y = isFlying
+        ? topMin + Math.random() * (bottomMax - topMin)
+        : Math.max(topMin + 20, rect.height - 64);
+
+      devilWrap.style.left = `${x}px`;
+      devilWrap.style.top = `${y}px`;
+    }
+
+    function toggleFlightMode() {
+      if (isFrenzy) return;
+      isFlying = !isFlying;
+      devilWrap.classList.toggle('flying', isFlying);
+      moveModePill.textContent = isFlying ? 'voando' : 'pousou • andando';
+      moveDevil();
+    }
+
+    function triggerFrenzy() {
+      isFrenzy = true;
+      clearTimeout(frenzyTimer);
+      world.classList.add('frenzy');
+      statusTxt.textContent = 'MODO DIABÃO FRENÉTICO ATIVADO!';
+
+      let idx = 0;
+      setToast(FRENZY_INSULTS[idx]);
+      const interval = setInterval(() => {
+        idx += 1;
+        if (idx < FRENZY_INSULTS.length) {
+          setToast(FRENZY_INSULTS[idx]);
+        }
+      }, 580);
+
+      frenzyTimer = setTimeout(() => {
+        clearInterval(interval);
+        isFrenzy = false;
+        world.classList.remove('frenzy');
+        recentTapTimes = [];
+        statusTxt.textContent = 'solto no mundinho • pronto pro caos';
+        setToast('Ufa... já xinguei por 3 segundos. Pode mandar mensagem!');
+      }, 3000);
+    }
+
+    function handlePoke() {
+      resetIdle();
+      totalTaps += 1;
+      tapPill.textContent = `toques: ${totalTaps}`;
+
+      const now = Date.now();
+      recentTapTimes = recentTapTimes.filter(t => now - t <= 2500);
+      recentTapTimes.push(now);
+
+      if (recentTapTimes.length >= 10 && !isFrenzy) {
+        triggerFrenzy();
+        return;
+      }
+
+      if (isFrenzy) return;
+
+      const pick = POKE_REACTIONS[Math.floor(Math.random() * POKE_REACTIONS.length)];
+      devilSvg.classList.remove(
+        'act-hop',
+        'act-scare',
+        'act-spin',
+        'act-yawn',
+        'act-wink',
+        'act-burp',
+        'act-fart'
+      );
+      void devilSvg.offsetWidth;
+      devilSvg.classList.add(pick.cls);
+
+      setToast(pick.txt);
+      moveDevil();
+
+      clearTimeout(animTimer);
+      animTimer = setTimeout(() => {
+        devilSvg.classList.remove(pick.cls);
+      }, 650);
+    }
+
+    function spawnSpark() {
+      if (world.querySelector('.spark-btn')) return;
+      const rect = world.getBoundingClientRect();
+      const spark = document.createElement('button');
+      spark.type = 'button';
+      spark.className = 'spark-btn';
+      spark.textContent = '🔥';
+      spark.title = 'Pegar conselho grátis!';
+      spark.setAttribute('aria-label', 'Foguinho de conselho grátis');
+
+      const maxX = Math.max(60, rect.width - 60);
+      const maxY = Math.max(80, rect.height - 84);
+      spark.style.left = `${24 + Math.random() * (maxX - 24)}px`;
+      spark.style.top = `${42 + Math.random() * (maxY - 42)}px`;
+
+      const expire = setTimeout(() => {
+        spark.remove();
+      }, 6500);
+
+      spark.addEventListener('click', () => {
+        clearTimeout(expire);
+        spark.remove();
+        resetIdle();
+        if (isSending) return;
+        const freePrompt = FREE_SPARK_PROMPTS[Math.floor(Math.random() * FREE_SPARK_PROMPTS.length)];
+        setToast('🔥 Foguinho pego! Soltando um conselho grátis...');
+        sendPrompt(freePrompt, 'Foguinho 🔥 (Conselho grátis)');
+      });
+
+      world.appendChild(spark);
+    }
+
+    async function sendPrompt(rawText, customLabel) {
+      const text = String(rawText || '').trim();
+      if (!text || isSending) return;
+
+      resetIdle();
+      isSending = true;
+      sendBtn.disabled = true;
+      surpriseBtn.disabled = true;
+      statusTxt.textContent = 'bolando uma ideia péssima...';
+      adviceQ.textContent = `Você: "${customLabel || text}"`;
+      adviceA.textContent = 'Deixa eu pensar no pior caminho possível...';
+      setToast('Espera aí que eu tô cozinhando o caos...');
+
+      history.push({ role: 'user', parts: [{ text }] });
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 22000);
+
+      try {
+        const res = await fetch('/api/conselho', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ history: history.slice(-8) }),
+          signal: controller.signal
+        });
+
+        const data = await res.json().catch(() => null);
+        const reply = data && typeof data.reply === 'string' && data.reply.trim()
+          ? data.reply.trim()
+          : '';
+
+        if (reply) {
+          adviceA.textContent = reply;
+          history.push({ role: 'model', parts: [{ text: reply }] });
+          statusTxt.textContent = 'satisfeito com o caos';
+          setToast('Conselho entregue. Vai encarar?');
+        } else {
+          adviceA.textContent = 'O sinal deu uma engasgada agora. Tenta mandar de novo!';
+          statusTxt.textContent = 'sinal instável';
+          setToast('Quase foi... tenta enviar de novo!');
+        }
+      } catch {
+        adviceA.textContent = 'Demorou mais que o normal para responder. Tenta enviar de novo!';
+        statusTxt.textContent = 'conexão oscilou';
+        setToast('Tenta mandar mais uma vez aí!');
+      } finally {
+        clearTimeout(timeoutId);
+        isSending = false;
+        sendBtn.disabled = false;
+        surpriseBtn.disabled = false;
+        resetIdle();
+      }
+    }
+
+    devilBtn.addEventListener('click', handlePoke);
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const p = chip.getAttribute('data-prompt');
+        if (p) sendPrompt(p);
+      });
+    });
+
+    surpriseBtn.addEventListener('click', () => {
+      const pick = SURPRISE_PROMPTS[Math.floor(Math.random() * SURPRISE_PROMPTS.length)];
+      sendPrompt(pick, `Surpreende: ${pick}`);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      resetIdle();
+      history = [];
+      adviceQ.textContent = 'Você: "Começar de novo"';
+      adviceA.textContent = 'Mundinho limpo e zero juízo. Manda uma dúvida ou clica num foguinho!';
+      statusTxt.textContent = 'solto no mundinho • pronto pro caos';
+      setToast('Tudo limpo por aqui!');
+    });
+
+    composer.addEventListener('submit', e => {
+      e.preventDefault();
+      const val = promptInput.value;
+      promptInput.value = '';
+      sendPrompt(val);
+    });
+
+    promptInput.addEventListener('input', resetIdle);
+    document.addEventListener('pointerdown', resetIdle, { passive: true });
+
+    setTimeout(moveDevil, 200);
+    moveTimer = setInterval(moveDevil, 2100);
+    modeTimer = setInterval(toggleFlightMode, 6500);
+    sparkTimer = setInterval(() => {
+      if (Math.random() < 0.7) spawnSpark();
+    }, 5500);
+    resetIdle();
+  </script>
+</body>
+</html>
