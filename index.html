@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Capetinha AI</title>
+
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Capetinha AI" />
+  <meta name="theme-color" content="#0c0711" />
+  <link id="apple-icon" rel="apple-touch-icon" href="" />
+
+  <style>
+    :root {
+      --bg-dark: #0c0711;
+      --bg-card: #160d1f;
+      --accent-red: #ff2a55;
+      --accent-orange: #ff8c1a;
+      --accent-gold: #ffd166;
+      --text-main: #f8f2fc;
+      --text-muted: #a695b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 35%, #231133 0%, var(--bg-dark) 75%);
+      color: var(--text-main);
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 460px;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: calc(env(safe-area-inset-top, 12px) + 8px) 14px calc(env(safe-area-inset-bottom, 14px) + 4px);
+      position: relative;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 4px;
+      z-index: 10;
+      gap: 6px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .avatar-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-red), #7a0c2e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+      box-shadow: 0 0 12px rgba(255, 42, 85, 0.45);
+    }
+
+    .brand-info h1 {
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .status-pill {
+      font-size: 10px;
+      background: rgba(46, 213, 115, 0.15);
+      color: #2ed573;
+      padding: 2px 6px;
+      border-radius: 99px;
+      font-weight: 600;
+    }
+
+    .brand-info p {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 155px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.92);
+    }
+
+    .speech-card {
+      background: rgba(22, 13, 31, 0.85);
+      border: 1px solid rgba(255, 42, 85, 0.28);
+      border-radius: 18px;
+      padding: 12px 15px;
+      min-height: 76px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      z-index: 10;
+      backdrop-filter: blur(8px);
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .user-quote {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    .demon-reply {
+      font-size: 14.5px;
+      line-height: 1.4;
+      font-weight: 600;
+      text-align: center;
+      color: #fff;
+    }
+
+    .stage {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      margin: 8px 0;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 50% 48%, rgba(255, 42, 85, 0.15), transparent 64%),
+        radial-gradient(circle at 80% 20%, rgba(255, 140, 26, 0.08), transparent 45%),
+        linear-gradient(rgba(255, 42, 85, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 42, 85, 0.035) 1px, transparent 1px),
+        rgba(9, 5, 15, 0.72);
+      background-size: auto, auto, 28px 28px, 28px 28px, auto;
+      border: 1px solid rgba(255, 42, 85, 0.3);
+      box-shadow:
+        inset 0 0 36px rgba(255, 42, 85, 0.12),
+        0 10px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .stage-floor {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 22px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 140, 26, 0.45), rgba(255, 42, 85, 0.45), transparent);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .ember {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      box-shadow: 0 0 8px var(--accent-orange);
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 1;
+      animation: emberRise linear infinite;
+    }
+
+    @keyframes emberRise {
+      0% { transform: translateY(0) scale(0.8); opacity: 0; }
+      25% { opacity: 0.55; }
+      85% { opacity: 0.35; }
+      100% { transform: translateY(-190px) scale(1.2); opacity: 0; }
+    }
+
+    .fire-spark {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 190, 50, 0.85);
+      background: radial-gradient(circle, rgba(255, 180, 30, 0.35), rgba(255, 42, 85, 0.24));
+      box-shadow: 0 0 16px rgba(255, 42, 85, 0.55);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 7;
+      animation: sparkPulse 1.3s ease-in-out infinite;
+      touch-action: manipulation;
+    }
+
+    .demon-wrapper {
+      position: absolute;
+      width: 142px;
+      height: 136px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      z-index: 5;
+    }
+
+    .demon-body-anim {
+      width: 100%;
+      height: 100%;
+      animation: floatBob 3.4s ease-in-out infinite;
+      filter: drop-shadow(0 6px 14px rgba(255, 42, 85, 0.35));
+    }
+
+    .demon-wrapper.still .demon-body-anim {
+      animation: gentleIdleBreath 2.6s ease-in-out infinite;
+    }
+
+    .demon-wrapper.walking .demon-body-anim {
+      animation: walkBounce 0.68s ease-in-out infinite;
+    }
+
+    .demon-wrapper.sitting .demon-body-anim {
+      animation: sitChill 2.8s ease-in-out infinite;
+    }
+
+    .wings-group {
+      transform-origin: 60px 64px;
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.25s ease, transform 0.28s ease;
+    }
+
+    .demon-wrapper.walking .wings-group,
+    .demon-wrapper.sitting .wings-group {
+      opacity: 0;
+      transform: scale(0.1);
+      pointer-events: none;
+    }
+
+    .wing-l {
+      transform-origin: 40px 62px;
+      animation: flapL 0.85s ease-in-out infinite;
+    }
+    .wing-r {
+      transform-origin: 80px 62px;
+      animation: flapR 0.85s ease-in-out infinite;
+    }
+
+    .legs-group {
+      transform-origin: 60px 94px;
+      opacity: 0;
+      transform: scaleY(0.1);
+      transition: opacity 0.25s ease, transform 0.28s ease;
+    }
+
+    .demon-wrapper.walking .legs-group,
+    .demon-wrapper.sitting .legs-group {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+
+    .demon-wrapper.walking .leg-l {
+      transform-origin: 53px 95px;
+      animation: stepL 0.68s ease-in-out infinite;
+    }
+
+    .demon-wrapper.walking .leg-r {
+      transform-origin: 67px 95px;
+      animation: stepR 0.68s ease-in-out infinite;
+    }
+
+    .demon-wrapper.sitting .leg-l {
+      transform-origin: 53px 95px;
+      transform: rotate(-42deg) translate(2px, -4px);
+    }
+    .demon-wrapper.sitting .leg-r {
+      transform-origin: 67px 95px;
+      transform: rotate(35deg) translate(-2px, -3px);
+    }
+
+    @keyframes gentleIdleBreath {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-2px) scale(1.015); }
+    }
+
+    @keyframes sitChill {
+      0%, 100% { transform: translateY(4px) rotate(0deg); }
+      50% { transform: translateY(5px) rotate(-1.5deg); }
+    }
+
+    .burp-waves { opacity: 0; pointer-events: none; }
+    .demon-body-anim.react-burp .burp-waves {
+      opacity: 1;
+      animation: burpWaveAnim 0.65s ease-out forwards;
+    }
+
+    .yawn-smoke { opacity: 0; pointer-events: none; }
+    .demon-body-anim.react-yawn .yawn-smoke {
+      opacity: 1;
+      animation: yawnSmokeAnim 0.95s ease-out forwards;
+    }
+
+    .fart-flame { opacity: 0; pointer-events: none; transform-origin: 26px 78px; }
+    .demon-body-anim.react-fart .fart-flame {
+      opacity: 1;
+      animation: fartFlameAnim 0.7s ease-out forwards;
+    }
+
+    @keyframes burpWaveAnim {
+      0% { transform: translateX(0) scale(0.7); opacity: 0.2; }
+      45% { transform: translateX(6px) scale(1.08); opacity: 1; }
+      100% { transform: translateX(12px) scale(1.18); opacity: 0; }
+    }
+
+    @keyframes yawnSmokeAnim {
+      0% { transform: translateY(4px) scale(0.65); opacity: 0.25; }
+      50% { transform: translateY(-8px) scale(1.05); opacity: 0.95; }
+      100% { transform: translateY(-18px) scale(1.25); opacity: 0; }
+    }
+
+    @keyframes fartFlameAnim {
+      0% { transform: translateX(4px) scale(0.5); opacity: 0.2; }
+      40% { transform: translateX(-6px) scale(1.2); opacity: 1; }
+      100% { transform: translateX(-14px) scale(1.35); opacity: 0; }
+    }
+
+    .back-view { display: none; }
+    .demon-body-anim.turned-back .front-view { display: none; }
+    .demon-body-anim.turned-back .back-view { display: block; }
+
+    @keyframes walkBounce {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-2.5px); }
+    }
+
+    @keyframes stepL {
+      0%, 100% { transform: rotate(-16deg) translateY(0); }
+      50% { transform: rotate(16deg) translateY(-1.5px); }
+    }
+
+    @keyframes stepR {
+      0%, 100% { transform: rotate(16deg) translateY(-1.5px); }
+      50% { transform: rotate(-16deg) translateY(0); }
+    }
+
+    .demon-body-anim.react-hop { animation: reactHop 0.48s cubic-bezier(0.2, 1.3, 0.35, 1); }
+    .demon-body-anim.react-scare { animation: reactScare 0.5s ease-out; }
+    .demon-body-anim.react-spin { animation: reactSpin 0.55s ease-out; }
+    .demon-body-anim.react-flip { animation: reactFlip 0.72s cubic-bezier(0.22, 1, 0.36, 1); }
+    .demon-body-anim.react-swim { animation: reactSwim 0.75s ease-in-out infinite; }
+    .demon-body-anim.react-back { animation: reactBack 0.45s ease-out; }
+    .demon-body-anim.react-yawn { animation: reactYawn 0.85s ease-in-out; }
+    .demon-body-anim.react-wink { animation: reactWink 0.45s ease-in-out; }
+    .demon-body-anim.react-burp { animation: reactBurp 0.6s ease-out; }
+    .demon-body-anim.react-fart { animation: reactFart 0.65s ease-out; }
+
+    .stage.frenzy {
+      border-color: var(--accent-red);
+      box-shadow:
+        inset 0 0 42px rgba(255, 42, 85, 0.38),
+        0 0 24px rgba(255, 42, 85, 0.45);
+      animation: stageShake 0.14s linear infinite;
+    }
+
+    .stage.frenzy .demon-body-anim {
+      transform: scale(1.24);
+      animation: frenzyRage 0.16s linear infinite;
+      filter: drop-shadow(0 0 16px rgba(255, 42, 85, 0.9));
+    }
+
+    @keyframes floatBob {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-7px) rotate(1.5deg); }
+    }
+
+    @keyframes reactHop {
+      0% { transform: translateY(0) scale(1, 1); }
+      35% { transform: translateY(-18px) scale(0.92, 1.12); }
+      75% { transform: translateY(2px) scale(1.08, 0.92); }
+      100% { transform: translateY(0) scale(1, 1); }
+    }
+
+    @keyframes reactScare {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.2) translateX(-6px); }
+      55% { transform: scale(0.88) translateX(6px); }
+      100% { transform: scale(1) translateX(0); }
+    }
+
+    @keyframes reactSpin {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.1); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes reactFlip {
+      0% { transform: translateY(0) rotate(0deg) scale(1); }
+      45% { transform: translateY(-22px) rotate(180deg) scale(1.12); }
+      100% { transform: translateY(0) rotate(360deg) scale(1); }
+    }
+
+    @keyframes reactSwim {
+      0%, 100% { transform: rotate(-16deg) translateY(-4px); }
+      50% { transform: rotate(16deg) translateY(5px); }
+    }
+
+    @keyframes reactBack {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.1, 0.94); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes reactYawn {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08, 0.95); }
+    }
+
+    @keyframes reactWink {
+      0%, 100% { transform: rotate(0deg); }
+      45% { transform: rotate(-10deg) scale(1.07); }
+      80% { transform: rotate(7deg); }
+    }
+
+    @keyframes reactBurp {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.18, 0.92); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes reactFart {
+      0% { transform: translateX(0); }
+      30% { transform: translateX(-7px) rotate(-7deg); }
+      65% { transform: translateX(7px) rotate(7deg); }
+      100% { transform: translateX(0) rotate(0deg); }
+    }
+
+    @keyframes frenzyRage {
+      0% { transform: scale(1.24) rotate(-8deg); }
+      50% { transform: scale(1.28) rotate(8deg); }
+      100% { transform: scale(1.24) rotate(-8deg); }
+    }
+
+    @keyframes stageShake {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(-2px, 1px); }
+      50% { transform: translate(2px, -1px); }
+      75% { transform: translate(-1px, -2px); }
+    }
+
+    @keyframes flapL {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-18deg); }
+    }
+    @keyframes flapR {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(18deg); }
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 0 8px;
+      scrollbar-width: none;
+    }
+    .chips::-webkit-scrollbar { display: none; }
+
+    .chip {
+      white-space: nowrap;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--text-main);
+      padding: 8px 13px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .chip.surprise {
+      background: linear-gradient(135deg, rgba(255, 42, 85, 0.3), rgba(255, 140, 26, 0.28));
+      border-color: rgba(255, 190, 50, 0.55);
+      color: #fff0d6;
+      font-weight: 700;
+    }
+
+    .input-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(180deg, rgba(28, 16, 40, 0.96), rgba(18, 10, 27, 0.98));
+      border: 1px solid rgba(255, 42, 85, 0.28);
+      border-radius: 18px;
+      padding: 6px 6px 6px 14px;
+    }
+
+    .input-bar input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 15px;
+      padding: 8px 4px;
+      outline: none;
+    }
+
+    .send-btn {
+      background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      padding: 10px 18px;
+      border-radius: 13px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .send-btn:disabled {
+      opacity: 0.5;
+    }
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(12, 7, 17, 0.97);
+      z-index: 30;
+      display: none;
+      flex-direction: column;
+      padding: calc(env(safe-area-inset-top, 14px) + 34px) 18px calc(env(safe-area-inset-bottom, 14px) + 18px);
+      gap: 12px;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .msg-bubble {
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      max-width: 85%;
+    }
+    .msg-user { align-self: flex-end; background: rgba(255, 42, 85, 0.25); }
+    .msg-demon { align-self: flex-start; background: rgba(255, 255, 255, 0.08); }
+
+    .wardrobe-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .wardrobe-tabs::-webkit-scrollbar { display: none; }
+
+    .w-tab {
+      white-space: nowrap;
+      padding: 7px 11px;
+      border-radius: 99px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .w-tab.active {
+      background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .wardrobe-grid {
+      flex: 1;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      padding-bottom: 8px;
+    }
+
+    .w-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 9px 10px;
+      color: #fff;
+      font-size: 12px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .w-item.equipped {
+      border-color: var(--accent-gold);
+      background: rgba(255, 209, 102, 0.14);
+    }
+
+    .w-item small {
+      color: var(--text-muted);
+      font-size: 10px;
+    }
+
+    .wardrobe-footer {
+      display: flex;
+      gap: 8px;
+    }
+
+    .w-clear-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.07);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="header">
+      <div class="brand">
+        <div class="avatar-badge">😈</div>
+        <div class="brand-info">
+          <h1>Capetinha AI <span class="status-pill">Online</span></h1>
+          <p id="mood-text">De boa por aí...</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="btn-wardrobe" title="Guarda-roupa">👗</button>
+        <button class="icon-btn" id="btn-history" title="Histórico">💬</button>
+        <button class="icon-btn" id="btn-voice" title="Som">🔊</button>
+        <button class="icon-btn" id="btn-reset" title="Limpar memória">↺</button>
+      </div>
+    </header>
+
+    <div class="speech-card">
+      <div class="user-quote" id="user-quote">Toque em mim ou mande sua dúvida</div>
+      <div class="demon-reply" id="demon-reply">"Fala logo, mortal. Qual decisão sensata vamos estragar hoje?"</div>
+    </div>
+
+    <main class="stage" id="stage">
+      <div class="stage-floor"></div>
+      <span class="ember" style="left: 18%; bottom: 24px; animation-duration: 5.2s; animation-delay: 0s;"></span>
+      <span class="ember" style="left: 42%; bottom: 24px; animation-duration: 6.4s; animation-delay: 1.5s;"></span>
+      <span class="ember" style="left: 68%; bottom: 24px; animation-duration: 4.9s; animation-delay: 0.7s;"></span>
+      <span class="ember" style="left: 84%; bottom: 24px; animation-duration: 6.0s; animation-delay: 2.3s;"></span>
+
+      <div class="demon-wrapper" id="demon">
+        <div class="demon-body-anim" id="demon-anim">
+          <svg viewBox="0 0 136 128" width="140" height="132">
+            <defs>
+              <radialGradient id="skinGrad" cx="45%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#ff5e7e" />
+                <stop offset="65%" stop-color="#d91642" />
+                <stop offset="100%" stop-color="#870926" />
+              </radialGradient>
+              <linearGradient id="goldHorn" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffe680" />
+                <stop offset="55%" stop-color="#ffbe0b" />
+                <stop offset="100%" stop-color="#d97706" />
+              </linearGradient>
+
+              <pattern id="texCurls" width="8" height="8" patternUnits="userSpaceOnUse">
+                <circle cx="4" cy="4" r="3.2" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="1.2" />
+              </pattern>
+              <pattern id="texStripes" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+                <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+              </pattern>
+              <pattern id="texPlaid" width="8" height="8" patternUnits="userSpaceOnUse">
+                <rect x="0" y="0" width="8" height="8" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.3" />
+                <line x1="0" y1="4" x2="8" y2="4" stroke="rgba(0,0,0,0.28)" stroke-width="1" />
+              </pattern>
+              <pattern id="texLeather" width="6" height="6" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1" fill="rgba(255,209,102,0.24)" />
+                <circle cx="5" cy="5" r="1" fill="rgba(255,255,255,0.12)" />
+              </pattern>
+            </defs>
+
+            <g class="fart-flame">
+              <path d="M24 76 C14 67, 8 75, 15 81 C9 83, 13 91, 22 85 Z" fill="#ff7b00" />
+              <path d="M22 78 C16 73, 13 78, 17 82 C14 83, 16 87, 21 83 Z" fill="#ffd166" />
+            </g>
+
+            <g class="wings-group">
+              <path class="wing-l" d="M40 60 C18 42, 10 62, 25 74 C31 68, 36 70, 40 68 Z" fill="#6b0f2b" />
+              <path class="wing-r" d="M80 60 C102 42, 110 62, 95 74 C89 68, 84 70, 80 68 Z" fill="#6b0f2b" />
+            </g>
+
+            <g id="layer-weapon">
+              <line x1="106" y1="30" x2="106" y2="98" stroke="#ffbe0b" stroke-width="3.6" stroke-linecap="round" />
+              <path d="M98 30 V43 C98 48 114 48 114 43 V30" fill="none" stroke="#ffbe0b" stroke-width="3.4" stroke-linecap="round" />
+              <line x1="106" y1="22" x2="106" y2="47" stroke="#ffbe0b" stroke-width="3.4" stroke-linecap="round" />
+            </g>
+
+            <path d="M44 87 Q24 91 28 73" fill="none" stroke="#b81237" stroke-width="4" stroke-linecap="round" />
+            <polygon points="28,69 23,77 33,77" fill="#ff2a55" />
+
+            <g class="legs-group">
+              <g class="leg-l">
+                <rect x="50" y="93" width="6" height="14" rx="3" fill="#b81237" />
+                <g id="layer-bottom-l"></g>
+                <g id="shoe-l">
+                  <ellipse cx="51" cy="108" rx="5.5" ry="3" fill="#ff2a55" />
+                </g>
+              </g>
+              <g class="leg-r">
+                <rect x="64" y="93" width="6" height="14" rx="3" fill="#b81237" />
+                <g id="layer-bottom-r"></g>
+                <g id="shoe-r">
+                  <ellipse cx="67" cy="108" rx="5.5" ry="3" fill="#ff2a55" />
+                </g>
+              </g>
+            </g>
+
+            <ellipse cx="60" cy="75" rx="20" ry="20" fill="url(#skinGrad)" />
+            <g id="layer-shirt"></g>
+
+            <g class="front-view">
+              <circle cx="60" cy="48" r="23" fill="url(#skinGrad)" />
+              <path d="M42 30 L31 12 L49 24 Z" fill="url(#goldHorn)" stroke="#5c2d06" stroke-width="1.8" stroke-linejoin="round" />
+              <path d="M78 30 L89 12 L71 24 Z" fill="url(#goldHorn)" stroke="#5c2d06" stroke-width="1.8" stroke-linejoin="round" />
+
+              <circle cx="51" cy="47" r="6" fill="#fff" />
+              <circle cx="69" cy="47" r="6" fill="#fff" />
+              <circle cx="52" cy="48" r="2.7" fill="#14081a" />
+              <circle cx="68" cy="48" r="2.7" fill="#14081a" />
+              <line x1="44" y1="41" x2="56" y2="44" stroke="#3b0514" stroke-width="2.8" stroke-linecap="round" />
+              <line x1="76" y1="41" x2="64" y2="44" stroke="#3b0514" stroke-width="2.8" stroke-linecap="round" />
+              <path d="M48 56 Q60 66 72 56" fill="none" stroke="#3b0514" stroke-width="2.6" stroke-linecap="round" />
+              <polygon points="52,58 54,62 56,59" fill="#fff" />
+              <polygon points="64,59 66,62 68,58" fill="#fff" />
+
+              <g id="layer-glasses"></g>
+              <g id="layer-hair"></g>
+
+              <g class="burp-waves" stroke="#ffd166" stroke-width="2.2" stroke-linecap="round" fill="none">
+                <path d="M74 55 Q77 52 80 55 Q83 58 86 55" />
+                <path d="M76 61 Q79 58 82 61 Q85 64 88 61" />
+              </g>
+
+              <g class="yawn-smoke" fill="rgba(226, 214, 245, 0.85)">
+                <circle cx="72" cy="53" r="4.5" />
+                <circle cx="79" cy="46" r="6" />
+                <circle cx="85" cy="37" r="7.5" />
+              </g>
+            </g>
+
+            <g class="back-view">
+              <circle cx="60" cy="48" r="23" fill="url(#skinGrad)" />
+              <path d="M42 30 L31 12 L49 24 Z" fill="url(#goldHorn)" stroke="#5c2d06" stroke-width="1.8" stroke-linejoin="round" />
+              <path d="M78 30 L89 12 L71 24 Z" fill="url(#goldHorn)" stroke="#5c2d06" stroke-width="1.8" stroke-linejoin="round" />
+              <polygon points="60,57 56,65 64,65" fill="#ffb833" />
+              <polygon points="60,68 56,76 64,76" fill="#ffb833" />
+              <polygon points="60,79 56,87 64,87" fill="#ffb833" />
+            </g>
+          </svg>
+        </div>
+      </div>
+    </main>
+
+    <div class="chips" id="chips-bar">
+      <button type="button" class="chip surprise" id="btn-surprise">⚡ Surpreende</button>
+    </div>
+
+    <form class="input-bar" id="chat-form">
+      <input type="text" id="user-input" placeholder="Peça um mau conselho..." autocomplete="off" maxlength="250" />
+      <button type="submit" class="send-btn" id="send-btn">Enviar</button>
+    </form>
+
+    <div class="modal-backdrop" id="wardrobe-modal">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong>Guarda-Roupa do Capetinha</strong>
+        <button class="icon-btn" id="close-wardrobe">✕</button>
+      </div>
+      <div class="wardrobe-tabs" id="wardrobe-tabs"></div>
+      <div class="wardrobe-grid" id="wardrobe-grid"></div>
+      <div class="wardrobe-footer">
+        <button type="button" class="w-clear-btn" id="btn-unequip-cat">Tirar peça da aba</button>
+        <button type="button" class="w-clear-btn" id="btn-clear-all">Tirar tudo</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="history-modal">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong>Memória da Sessão</strong>
+        <button class="icon-btn" id="close-history">✕</button>
+      </div>
+      <div class="history-list" id="history-list"></div>
+    </div>
+  </div>
+
+  <script>
+    (function generateIOSIcon() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 180;
+      canvas.height = 180;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#160d1f';
+      ctx.fillRect(0, 0, 180, 180);
+      ctx.font = '105px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('😈', 90, 96);
+      document.getElementById('apple-icon').href = canvas.toDataURL('image/png');
+    })();
+
+    const stage = document.getElementById('stage');
+    const demon = document.getElementById('demon');
+    const demonAnim = document.getElementById('demon-anim');
+    const moodText = document.getElementById('mood-text');
+    const userQuote = document.getElementById('user-quote');
+    const demonReply = document.getElementById('demon-reply');
+    const chipsBar = document.getElementById('chips-bar');
+    const chatForm = document.getElementById('chat-form');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    const OUTFIT_STORAGE_KEY = "capetinha_outfit_v1";
+
+    let chatHistory = [];
+    let voiceEnabled = true;
+    let isBusy = false;
+    let isFrenzy = false;
+
+    let currentX = 0.5;
+    let currentY = 0.45;
+
+    let recentTapTimes = [];
+    let lastPokeIdx = -1;
+    const recentPokeLines = [];
+    const recentIdleLines = [];
+
+    let cycleTimeout = null;
+    let sparkTimeout = null;
+    let idleTimeout = null;
+    let reactTimeout = null;
+    let backTimeout = null;
+    let frenzyTimeout = null;
+    let gruntTimers = [];
+    let audioCtx = null;
+
+    const equipped = {
+      hair: null,
+      shirt: null,
+      shorts: null,
+      pants: null,
+      shoes: null,
+      glasses: null,
+      weapon: null
+    };
+
+    function saveOutfit() {
+      try {
+        const compact = {};
+        Object.keys(equipped).forEach((cat) => {
+          compact[cat] = equipped[cat] ? equipped[cat].id : null;
+        });
+        localStorage.setItem(OUTFIT_STORAGE_KEY, JSON.stringify(compact));
+      } catch (_) {}
+    }
+
+    function loadSavedOutfit() {
+      try {
+        const raw = localStorage.getItem(OUTFIT_STORAGE_KEY);
+        if (!raw) return;
+        const savedIds = JSON.parse(raw);
+        if (!savedIds || typeof savedIds !== "object") return;
+
+        Object.keys(equipped).forEach((cat) => {
+          const id = savedIds[cat];
+          const list = wardrobeCatalog[cat] || [];
+          equipped[cat] = id ? (list.find((item) => item.id === id) || null) : null;
+        });
+      } catch (_) {}
+    }
+
+    const stylesPool = [
+      "Streetwear", "Gótico/Submundo", "BDSM Couro/Fivela",
+      "Casual", "Retrô/Clássico", "Esportivo", "Fantasia"
+    ];
+    const palette = [
+      "#18151d", "#ff2a55", "#ffd166", "#22d3ee", "#a855f7",
+      "#f97316", "#22c55e", "#f43f5e", "#e2e8f0", "#7c2d12"
+    ];
+
+    const hairCutTypes = ["afro", "mohawk", "dreads", "spiky", "pompadour", "bob"];
+    const shirtCutTypes = ["hoodie", "tee", "tank", "cropped", "jacket", "bdsm"];
+    const bottomCutTypes = ["cargo", "baggy", "sport", "leather", "tailored"];
+    const shoeCutTypes = ["sneaker", "boot", "loafers", "slide", "platform"];
+    const glassesCutTypes = ["round", "shade", "visor", "star", "bdsm"];
+    const weaponCutTypes = ["trident", "trident_twin", "staff_orb", "staff_horn", "staff_scythe"];
+
+    function build50Items(category, prefixes, nouns, cutTypes) {
+      const list = [];
+      for (let i = 1; i <= 50; i++) {
+        const p = prefixes[(i - 1) % prefixes.length];
+        const n = nouns[(i - 1) % nouns.length];
+        const st = stylesPool[(i - 1) % stylesPool.length];
+        const color = palette[(i - 1) % palette.length];
+        const accent = palette[(i + 2) % palette.length];
+        const cut = cutTypes[(i - 1) % cutTypes.length];
+        list.push({
+          id: `${category}-${i}`,
+          name: `${n} ${p} #${i}`,
+          style: st,
+          color,
+          accent,
+          cut
+        });
+      }
+      return list;
+    }
+
+    const wardrobeCatalog = {
+      hair: build50Items(
+        "hair",
+        ["Black Power", "Espetado", "Trançado", "Volumoso", "Cacheado", "Rebelde", "Sombrio", "Neon", "Couro/Argola", "Clássico"],
+        ["Cabelo Black", "Moicano", "Dreads", "Topete", "Afro", "Franja", "Coque", "Corte Navalhado", "Rabo", "Cabelinho"],
+        hairCutTypes
+      ),
+      shirt: build50Items(
+        "shirt",
+        ["Oversized", "Regata", "Cropped", "Jaqueta", "Moletom", "Arneses/Fivela", "Malha", "Social", "Tachada", "Estampada"],
+        ["Blusinha", "Camisa", "Camiseta", "Colete", "Jaqueta", "Blusa", "Cropped", "Top", "Moletom", "Peitoral BDSM"],
+        shirtCutTypes
+      ),
+      shorts: build50Items(
+        "shorts",
+        ["Cargo", "Tactel", "Jeans", "Couro/Fivela", "Esportivo", "Curto", "Street", "Xadrez", "Rebitado", "Praia"],
+        ["Short", "Bermuda", "Shortinho", "Bermudão", "Short Cargo", "Short Couro", "Short Malha", "Bermuda Street", "Short Neon", "Bermuda Clássica"],
+        bottomCutTypes
+      ),
+      pants: build50Items(
+        "pants",
+        ["Baggy", "Cargo", "Couro/Fivela", "Moletom", "Alfaiataria", "Jeans", "Flare", "Corrente", "Tática", "Retrô"],
+        ["Calça", "Calça Baggy", "Calça Couro", "Calça Cargo", "Calça Social", "Calça Flare", "Calça Street", "Calça Fivela", "Calça Jogger", "Calça Dark"],
+        bottomCutTypes
+      ),
+      shoes: build50Items(
+        "shoes",
+        ["Cano Alto", "Coturno", "Fivela/Couro", "Chunky", "Esportivo", "Social", "Plataforma", "Slide", "Bota", "Caninho"],
+        ["Sapatinho", "Tênis", "Coturno", "Bota", "Sapatênis", "Plataforma", "Tênis Street", "Bota Fivela", "Chinelo", "Sapato"],
+        shoeCutTypes
+      ),
+      glasses: build50Items(
+        "glasses",
+        ["Redondo", "Escuro", "Visor", "Estrela", "Coração", "Couro/Fivela", "Aro Fino", "Retrô", "Cyber", "Gatinho"],
+        ["Óculos", "Juliet", "Óculos Escuro", "Óculos Redondo", "Óculos Cyber", "Óculos Estrela", "Óculos Coração", "Óculos Couro", "Óculos Visor", "Óculos Clássico"],
+        glassesCutTypes
+      ),
+      weapon: build50Items(
+        "weapon",
+        ["Infernal", "Dourado", "Fivela/Couro", "Sombrio", "Flamejante", "Rúnico", "Ancestral", "Elétrico", "Cristal", "Real"],
+        ["Tridente", "Cajado de Orbe", "Tridente Duplo", "Cajado de Chifre", "Cajado de Foice", "Tridente de Chamas", "Cajado de Ossos", "Tridente Gótico", "Cajado Místico", "Cajado Sombrio"],
+        weaponCutTypes
+      )
+    };
+
+    const tabMeta = [
+      { key: "hair", label: "Cabelo (50)" },
+      { key: "shirt", label: "Blusas (50)" },
+      { key: "shorts", label: "Shorts (50)" },
+      { key: "pants", label: "Calças (50)" },
+      { key: "shoes", label: "Sapatinho (50)" },
+      { key: "glasses", label: "Óculos (50)" },
+      { key: "weapon", label: "Tridente/Cajado (50)" }
+    ];
+
+    let activeTab = "hair";
+
+    function renderHairMarkup(item) {
+      const c = item.color;
+      const a = item.accent;
+      if (item.cut === "afro") {
+        return `
+          <path d="M35 45 C26 36, 31 18, 44 19 C49 11, 71 11, 76 19 C89 18, 94 36, 85 45 C82 32, 74 27, 60 27 C46 27, 38 32, 35 45 Z" fill="${c}" stroke="#120718" stroke-width="1.6" />
+          <path d="M35 45 C26 36, 31 18, 44 19 C49 11, 71 11, 76 19 C89 18, 94 36, 85 45 C82 32, 74 27, 60 27 C46 27, 38 32, 35 45 Z" fill="url(#texCurls)" />
+          <circle cx="46" cy="21" r="2.2" fill="${a}" opacity="0.75" />
+          <circle cx="74" cy="21" r="2.2" fill="${a}" opacity="0.75" />
+        `;
+      }
+      if (item.cut === "mohawk") {
+        return `
+          <path d="M53 26 L56 8 L60 14 L64 8 L67 26 Z" fill="${c}" stroke="#120718" stroke-width="1.6" />
+          <line x1="60" y1="14" x2="60" y2="25" stroke="${a}" stroke-width="1.5" />
+        `;
+      }
+      if (item.cut === "dreads") {
+        return `
+          <rect x="37" y="25" width="5" height="22" rx="2.5" fill="${c}" stroke="#120718" stroke-width="1.3" />
+          <rect x="43" y="21" width="5" height="20" rx="2.5" fill="${c}" stroke="#120718" stroke-width="1.3" />
+          <rect x="72" y="21" width="5" height="20" rx="2.5" fill="${c}" stroke="#120718" stroke-width="1.3" />
+          <rect x="78" y="25" width="5" height="22" rx="2.5" fill="${c}" stroke="#120718" stroke-width="1.3" />
+          <path d="M40 25 Q60 16 80 25 L76 30 Q60 22 44 30 Z" fill="${c}" />
+        `;
+      }
+      if (item.cut === "spiky") {
+        return `
+          <polygon points="39,30 35,18 46,24 52,13 60,22 68,13 74,24 85,18 81,30 60,26" fill="${c}" stroke="#120718" stroke-width="1.5" />
+        `;
+      }
+      if (item.cut === "pompadour") {
+        return `
+          <path d="M42 29 C38 14, 66 9, 77 18 C82 22, 80 29, 75 29 C65 23, 52 24, 42 29 Z" fill="${c}" stroke="#120718" stroke-width="1.6" />
+          <path d="M46 21 Q62 15 73 21" fill="none" stroke="${a}" stroke-width="1.6" />
+        `;
+      }
+      return `
+        <path d="M38 42 C37 22, 83 22, 82 42 L78 44 C78 30, 42 30, 42 44 Z" fill="${c}" stroke="#120718" stroke-width="1.5" />
+      `;
+    }
+
+    function renderShirtMarkup(item) {
+      const c = item.color;
+      const a = item.accent;
+      if (item.cut === "bdsm") {
+        return `
+          <path d="M43 62 Q60 59 77 62 L79 89 Q60 93 41 89 Z" fill="#18121c" fill-opacity="0.45" />
+          <line x1="43" y1="62" x2="77" y2="88" stroke="${c}" stroke-width="3.2" stroke-linecap="round" />
+          <line x1="77" y1="62" x2="43" y2="88" stroke="${c}" stroke-width="3.2" stroke-linecap="round" />
+          <rect x="40" y="61" width="40" height="4.5" rx="2" fill="${c}" stroke="#120718" stroke-width="1.2" />
+          <circle cx="60" cy="75" r="4" fill="${a}" stroke="#120718" stroke-width="1.4" />
+        `;
+      }
+      if (item.cut === "hoodie") {
+        return `
+          <path d="M38 61 L46 57 L60 63 L74 57 L82 61 L84 89 Q60 94 36 89 Z" fill="${c}" stroke="#120718" stroke-width="1.6" />
+          <path d="M38 61 L46 57 L60 63 L74 57 L82 61 L84 89 Q60 94 36 89 Z" fill="url(#texLeather)" />
+          <line x1="56" y1="64" x2="56" y2="75" stroke="${a}" stroke-width="1.8" stroke-linecap="round" />
+          <line x1="64" y1="64" x2="64" y2="75" stroke="${a}" stroke-width="1.8" stroke-linecap="round" />
+        `;
+      }
+      if (item.cut === "tank") {
+        return `
+          <path d="M45 58 H51 L52 66 H68 L69 58 H75 L77 88 Q60 92 43 88 Z" fill="${c}" stroke="#120718" stroke-width="1.5" />
+          <path d="M45 58 H51 L52 66 H68 L69 58 H75 L77 88 Q60 92 43 88 Z" fill="url(#texStripes)" />
+        `;
+      }
+      if (item.cut === "cropped") {
+        return `
+          <path d="M41 61 L48 58 Q60 63 72 58 L79 61 L80 79 Q60 82 40 79 Z" fill="${c}" stroke="#120718" stroke-width="1.5" />
+          <line x1="41" y1="78" x2="79" y2="78" stroke="${a}" stroke-width="2" />
+        `;
+      }
+      if (item.cut === "jacket") {
+        return `
+          <path d="M38 61 L47 57 L54 62 L54 89 L37 89 Z" fill="${c}" stroke="#120718" stroke-width="1.5" />
+          <path d="M82 61 L73 57 L66 62 L66 89 L83 89 Z" fill="${c}" stroke="#120718" stroke-width="1.5" />
+          <line x1="60" y1="62" x2="60" y2="89" stroke="${a}" stroke-width="2.2" stroke-dasharray="3 2" />
+        `;
+      }
+      return `
+        <path d="M39 61 L48 58 Q60 63 72 58 L81 61 L82 88 Q60 92 38 88 Z" fill="${c}" stroke="#120718" stroke-width="1.5" />
+        <path d="M39 61 L48 58 Q60 63 72 58 L81 61 L82 88 Q60 92 38 88 Z" fill="url(#texPlaid)" />
+        <path d="M52 59 Q60 66 68 59" fill="none" stroke="${a}" stroke-width="2" />
+      `;
+    }
+
+    function renderBottomMarkup(item, isPants, isLeft) {
+      const c = item.color;
+      const a = item.accent;
+      const x = isLeft ? 48.5 : 62.5;
+      const w = item.cut === "baggy" ? 10 : 8.5;
+      const h = isPants ? 14 : 7.5;
+      return `
+        <rect x="${x}" y="93" width="${w}" height="${h}" rx="2.5" fill="${c}" stroke="#120718" stroke-width="1.3" />
+        <line x1="${x + 1}" y1="${93 + h - 1.5}" x2="${x + w - 1}" y2="${93 + h - 1.5}" stroke="${a}" stroke-width="1.5" />
+      `;
+    }
+
+    function renderShoeMarkup(item, isLeft) {
+      const c = item.color;
+      const a = item.accent;
+      const cx = isLeft ? 51 : 67;
+      if (item.cut === "boot") {
+        return `
+          <rect x="${cx - 4.5}" y="102" width="9" height="6" rx="2" fill="${c}" stroke="#120718" stroke-width="1.2" />
+          <rect x="${cx - 6.5}" y="106.5" width="13" height="3.5" rx="1.5" fill="${a}" />
+        `;
+      }
+      if (item.cut === "sneaker") {
+        return `
+          <path d="M${cx - 6} 107.5 Q${cx} 102 ${cx + 6.5} 106.5 L${cx + 6.5} 109 H${cx - 6} Z" fill="${c}" stroke="#120718" stroke-width="1.2" />
+          <rect x="${cx - 6}" y="108.5" width="12.5" height="2.2" rx="1" fill="#f8fafc" />
+          <line x1="${cx - 1}" y1="104.5" x2="${cx + 2}" y2="104.5" stroke="${a}" stroke-width="1.5" />
+        `;
+      }
+      return `
+        <ellipse cx="${cx}" cy="108" rx="6.8" ry="3.2" fill="${c}" stroke="#120718" stroke-width="1.2" />
+        <path d="M${cx - 3.5} 107.5 Q${cx} 105 ${cx + 3.5} 107.5" fill="none" stroke="${a}" stroke-width="1.6" />
+      `;
+    }
+
+    function renderGlassesMarkup(item) {
+      const c = item.color;
+      const a = item.accent;
+      if (item.cut === "round") {
+        return `
+          <circle cx="50.5" cy="46.5" r="6" fill="rgba(15,15,25,0.55)" stroke="${c}" stroke-width="2.1" />
+          <circle cx="69.5" cy="46.5" r="6" fill="rgba(15,15,25,0.55)" stroke="${c}" stroke-width="2.1" />
+          <line x1="56.5" y1="46.5" x2="63.5" y2="46.5" stroke="${c}" stroke-width="2" />
+        `;
+      }
+      if (item.cut === "visor") {
+        return `
+          <path d="M43 42 H77 L75 50 Q60 52 45 50 Z" fill="${c}" fill-opacity="0.72" stroke="${a}" stroke-width="1.8" />
+        `;
+      }
+      if (item.cut === "bdsm") {
+        return `
+          <rect x="43" y="42.5" width="14" height="7.5" rx="2" fill="#110c14" stroke="${c}" stroke-width="2.2" />
+          <rect x="63" y="42.5" width="14" height="7.5" rx="2" fill="#110c14" stroke="${c}" stroke-width="2.2" />
+          <line x1="57" y1="46" x2="63" y2="46" stroke="${a}" stroke-width="2.2" />
+        `;
+      }
+      return `
+        <rect x="43.5" y="42.5" width="13.5" height="7.5" rx="2.5" fill="rgba(12,12,20,0.65)" stroke="${c}" stroke-width="2" />
+        <rect x="63" y="42.5" width="13.5" height="7.5" rx="2.5" fill="rgba(12,12,20,0.65)" stroke="${c}" stroke-width="2" />
+        <line x1="57" y1="45.5" x2="63" y2="45.5" stroke="${a}" stroke-width="2" />
+      `;
+    }
+
+    function renderWeaponMarkup(item) {
+      const c = item.color;
+      const a = item.accent;
+      if (item.cut === "staff_orb") {
+        return `
+          <line x1="106" y1="30" x2="106" y2="98" stroke="${c}" stroke-width="3.8" stroke-linecap="round" />
+          <circle cx="106" cy="24" r="7.5" fill="${a}" stroke="#120718" stroke-width="1.6" />
+          <circle cx="104" cy="22" r="2.2" fill="#fff" opacity="0.8" />
+        `;
+      }
+      if (item.cut === "staff_horn") {
+        return `
+          <line x1="106" y1="32" x2="106" y2="98" stroke="${c}" stroke-width="3.8" stroke-linecap="round" />
+          <path d="M95 22 Q106 34 117 22 Q111 33 106 34 Q101 33 95 22 Z" fill="${a}" stroke="#120718" stroke-width="1.4" />
+        `;
+      }
+      if (item.cut === "staff_scythe") {
+        return `
+          <line x1="106" y1="24" x2="106" y2="98" stroke="${c}" stroke-width="3.6" stroke-linecap="round" />
+          <path d="M106 25 Q86 22 82 38 Q92 31 106 31 Z" fill="${a}" stroke="#120718" stroke-width="1.5" />
+        `;
+      }
+      if (item.cut === "trident_twin") {
+        return `
+          <line x1="106" y1="28" x2="106" y2="98" stroke="${c}" stroke-width="3.6" stroke-linecap="round" />
+          <path d="M97 26 L99 42 H113 L115 26" fill="none" stroke="${a}" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+          <polygon points="106,18 102,26 110,26" fill="${a}" />
+        `;
+      }
+      return `
+        <line x1="106" y1="30" x2="106" y2="98" stroke="${c}" stroke-width="3.6" stroke-linecap="round" />
+        <path d="M98 30 V43 C98 48 114 48 114 43 V30" fill="none" stroke="${a}" stroke-width="3.4" stroke-linecap="round" />
+        <line x1="106" y1="22" x2="106" y2="47" stroke="${a}" stroke-width="3.4" stroke-linecap="round" />
+      `;
+    }
+
+    function renderCharacterOutfit() {
+      const hairLayer = document.getElementById("layer-hair");
+      const shirtLayer = document.getElementById("layer-shirt");
+      const bottomL = document.getElementById("layer-bottom-l");
+      const bottomR = document.getElementById("layer-bottom-r");
+      const shoeL = document.getElementById("shoe-l");
+      const shoeR = document.getElementById("shoe-r");
+      const glassesLayer = document.getElementById("layer-glasses");
+      const weaponLayer = document.getElementById("layer-weapon");
+
+      hairLayer.innerHTML = equipped.hair ? renderHairMarkup(equipped.hair) : "";
+      shirtLayer.innerHTML = equipped.shirt ? renderShirtMarkup(equipped.shirt) : "";
+
+      const botItem = equipped.pants || equipped.shorts;
+      if (botItem) {
+        bottomL.innerHTML = renderBottomMarkup(botItem, Boolean(equipped.pants), true);
+        bottomR.innerHTML = renderBottomMarkup(botItem, Boolean(equipped.pants), false);
+      } else {
+        bottomL.innerHTML = "";
+        bottomR.innerHTML = "";
+      }
+
+      if (equipped.shoes) {
+        shoeL.innerHTML = renderShoeMarkup(equipped.shoes, true);
+        shoeR.innerHTML = renderShoeMarkup(equipped.shoes, false);
+      } else {
+        shoeL.innerHTML = `<ellipse cx="51" cy="108" rx="5.5" ry="3" fill="#ff2a55" />`;
+        shoeR.innerHTML = `<ellipse cx="67" cy="108" rx="5.5" ry="3" fill="#ff2a55" />`;
+      }
+
+      glassesLayer.innerHTML = equipped.glasses ? renderGlassesMarkup(equipped.glasses) : "";
+
+      if (equipped.weapon) {
+        weaponLayer.innerHTML = renderWeaponMarkup(equipped.weapon);
+      } else {
+        weaponLayer.innerHTML = `
+          <line x1="106" y1="30" x2="106" y2="98" stroke="#ffbe0b" stroke-width="3.6" stroke-linecap="round" />
+          <path d="M98 30 V43 C98 48 114 48 114 43 V30" fill="none" stroke="#ffbe0b" stroke-width="3.4" stroke-linecap="round" />
+          <line x1="106" y1="22" x2="106" y2="47" stroke="#ffbe0b" stroke-width="3.4" stroke-linecap="round" />
+        `;
+      }
+    }
+
+    const wardrobeModal = document.getElementById("wardrobe-modal");
+    const wardrobeTabs = document.getElementById("wardrobe-tabs");
+    const wardrobeGrid = document.getElementById("wardrobe-grid");
+
+    function renderWardrobeTabs() {
+      wardrobeTabs.innerHTML = "";
+      tabMeta.forEach(t => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = `w-tab ${t.key === activeTab ? "active" : ""}`;
+        b.textContent = t.label;
+        b.addEventListener("click", () => {
+          activeTab = t.key;
+          renderWardrobeTabs();
+          renderWardrobeGrid();
+        });
+        wardrobeTabs.appendChild(b);
+      });
+    }
+
+    function renderWardrobeGrid() {
+      const items = wardrobeCatalog[activeTab] || [];
+      const currentItem = equipped[activeTab];
+      wardrobeGrid.innerHTML = "";
+
+      items.forEach(item => {
+        const isEq = currentItem && currentItem.id === item.id;
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = `w-item ${isEq ? "equipped" : ""}`;
+        card.innerHTML = `
+          <span><strong style="color:${item.color}">●</strong> ${item.name}</span>
+          <small>${item.style}${isEq ? " • Vestido" : ""}</small>
+        `;
+        card.addEventListener("click", () => {
+          equipped[activeTab] = isEq ? null : item;
+          saveOutfit();
+          renderCharacterOutfit();
+          renderWardrobeGrid();
+          moodText.textContent = equipped[activeTab] ? `Usando ${item.name}` : "Tirou a peça";
+        });
+        wardrobeGrid.appendChild(card);
+      });
+    }
+
+    document.getElementById("btn-wardrobe").addEventListener("click", () => {
+      renderWardrobeTabs();
+      renderWardrobeGrid();
+      wardrobeModal.classList.add("open");
+    });
+
+    document.getElementById("close-wardrobe").addEventListener("click", () => {
+      wardrobeModal.classList.remove("open");
+    });
+
+    document.getElementById("btn-unequip-cat").addEventListener("click", () => {
+      equipped[activeTab] = null;
+      saveOutfit();
+      renderCharacterOutfit();
+      renderWardrobeGrid();
+    });
+
+    document.getElementById("btn-clear-all").addEventListener("click", () => {
+      Object.keys(equipped).forEach(k => { equipped[k] = null; });
+      saveOutfit();
+      renderCharacterOutfit();
+      renderWardrobeGrid();
+      moodText.textContent = "Visual original do submundo";
+    });
+
+    const quickQuestionPool = [
+      { label: "🍻 Sair hoje?", q: "Deveria sair hoje à noite?" },
+      { label: "💸 Comprar por impulso?", q: "Compro algo caro por impulso?" },
+      { label: "📱 Mandar mensagem?", q: "Mando mensagem pra quem eu não deveria?" },
+      { label: "☕ Café de madrugada?", q: "Tomo café agora mesmo sendo tarde?" },
+      { label: "🍕 Pedir lanche?", q: "Peço um lanche gigante fora de hora?" },
+      { label: "😴 Faltar hoje?", q: "Arrumo uma desculpa pra empurrar isso com a barriga?" },
+      { label: "🎮 Virar a noite?", q: "Viro a noite jogando ou vendo besteira?" },
+      { label: "✂️ Mudar o visual?", q: "Mudo o visual do nada hoje?" },
+      { label: "🔥 Causar um drama?", q: "Como apimentar um dia chato com um drama leve?" },
+      { label: "🛒 Mais uma compra?", q: "Só mais um itemzinho no carrinho faz mal?" }
+    ];
+
+    const darkRelics = [
+      { icon: "🔥", label: "Foguinho 🔥" },
+      { icon: "💀", label: "Caveirinha 💀" },
+      { icon: "🦴", label: "Ossinho 🦴" },
+      { icon: "🔱", label: "Tridente 🔱" },
+      { icon: "🦇", label: "Morceguinho 🦇" }
+    ];
+
+    function renderRandomChips() {
+      const shuffled = [...quickQuestionPool].sort(() => Math.random() - 0.5).slice(0, 4);
+      shuffled.forEach(item => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip';
+        btn.textContent = item.label;
+        btn.addEventListener('click', () => askDemon(item.q));
+        chipsBar.appendChild(btn);
+      });
+    }
+
+    function getAudioCtx() {
+      if (!voiceEnabled) return null;
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      if (!audioCtx) audioCtx = new Ctx();
+      if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+      return audioCtx;
+    }
+
+    function clearGrunts() {
+      gruntTimers.forEach(id => clearTimeout(id));
+      gruntTimers = [];
+    }
+
+    function playSingleGrunt(moodStyle = "normal") {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+
+      const isMad = moodStyle === "mad";
+      const baseFreq = isMad
+        ? 145 + Math.random() * 65
+        : 105 + Math.random() * 48;
+      const endFreq = isMad
+        ? baseFreq * (0.72 + Math.random() * 0.2)
+        : baseFreq * (0.66 + Math.random() * 0.22);
+      const dur = 0.08 + Math.random() * 0.07;
+
+      osc.type = isMad ? "sawtooth" : "triangle";
+      osc.frequency.setValueAtTime(baseFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(48, endFreq), now + dur);
+
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(isMad ? 680 : 460, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(isMad ? 0.13 : 0.1, now + 0.018);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + dur + 0.01);
+    }
+
+    function speakGrunts(text, moodStyle = "normal") {
+      clearGrunts();
+      if (!voiceEnabled) return;
+      const clean = String(text || '').replace(/["*]/g, '').trim();
+      if (!clean || clean === '...') return;
+
+      const count = Math.min(7, Math.max(2, Math.floor(clean.length / 18)));
+      let offset = 0;
+
+      for (let i = 0; i < count; i++) {
+        const timerId = setTimeout(() => {
+          playSingleGrunt(moodStyle);
+        }, offset);
+        gruntTimers.push(timerId);
+        offset += (moodStyle === "mad" ? 130 : 185) + Math.random() * 90;
+      }
+    }
+
+    function playBurpSound() {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(145, now);
+      osc.frequency.exponentialRampToValueAtTime(68, now + 0.24);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.14, now + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.27);
+    }
+
+    function playFartSound() {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(190, now);
+      osc.frequency.linearRampToValueAtTime(115, now + 0.14);
+      osc.frequency.linearRampToValueAtTime(150, now + 0.28);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.15, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.31);
+    }
+
+    const pokeActionsBase = [
+      { type: 'burp', cls: 'react-burp', duration: 680, mood: "*BRUUUUP!* Traminha na boca", actionLabel: "soltando um arroto com traminha na boca", sound: 'burp' },
+      { type: 'yawn', cls: 'react-yawn', duration: 950, mood: "*Bocejou soltando fumaça*", actionLabel: "bocejando e soltando fumaça pela boca" },
+      { type: 'fart', cls: 'react-fart', duration: 720, mood: "*Soltou um foguinho pelo rabinho*", actionLabel: "soltando um foguinho pelo rabinho", sound: 'fart' },
+      { type: 'swim', cls: 'react-swim', duration: 850, mood: "Batendo água no ar", actionLabel: "batendo água no ar" },
+      { type: 'flip', cls: 'react-flip', duration: 750, mood: "Mandou uma pirueta", actionLabel: "mandando uma pirueta no ar" },
+      { type: 'back', cls: 'react-back', duration: 1600, turnBack: true, mood: "Virou de costas", actionLabel: "virado de costas" },
+      { type: 'ghost', cls: '', duration: 900, ghost: true, mood: "Te deu um vácuo", actionLabel: "no vácuo" },
+      { type: 'hop', cls: 'react-hop', duration: 550, mood: "Pulando com chifre dourado", actionLabel: "pulando com chifre dourado e tridente" },
+      { type: 'scare', cls: 'react-scare', duration: 550, mood: "Tomou um susto", actionLabel: "assustado com a cutucada" },
+      { type: 'spin', cls: 'react-spin', duration: 600, mood: "Girou no ar", actionLabel: "girando sem parar" },
+      { type: 'wink', cls: 'react-wink', duration: 550, mood: "*Piscou malandro*", actionLabel: "piscando malandro" }
+    ];
+
+    const pokeOpeners = [
+      "Ei, mortal!", "Opa, calma aí!", "Qual foi, zé?", "Olha a folga!",
+      "Chegou chegando, hein?", "Tô de olho em você!", "Respeita o chifre dourado!", "Acha que é fácil?"
+    ];
+
+    const pokeClosers = [
+      "Já bolei três ideias ruins pra você.", "Não me testa que o caos piora.",
+      "Manda logo uma dúvida decente!", "Hoje o submundo tá inspirado.",
+      "Se arrependimento matasse, já tava feio.", "Tô só esperando você errar de novo.",
+      "Acha que isso vai melhorar seu dia?", "O tridente tá coçando pra entrar em ação."
+    ];
+
+    function buildPokeLine(act) {
+      if (act.ghost) return "...";
+      for (let i = 0; i < 12; i++) {
+        const op = pokeOpeners[Math.floor(Math.random() * pokeOpeners.length)];
+        const cl = pokeClosers[Math.floor(Math.random() * pokeClosers.length)];
+        const sentence = `${op} Tô aqui ${act.actionLabel} — ${cl}`;
+        if (!recentPokeLines.includes(sentence)) {
+          recentPokeLines.push(sentence);
+          if (recentPokeLines.length > 25) recentPokeLines.shift();
+          return sentence;
+        }
+      }
+      const op = pokeOpeners[Math.floor(Math.random() * pokeOpeners.length)];
+      const cl = pokeClosers[Math.floor(Math.random() * pokeClosers.length)];
+      return `${op} Tô aqui ${act.actionLabel} — ${cl}`;
+    }
+
+    const stareQuestions = [
+      "Por que você tá aí parado só me encarando?",
+      "Tá olhando o quê, mortal? Vai pedir um mau conselho ou só ficar me secando?",
+      "Mais de trinta segundos parado me olhando... criou coragem ou só travou?",
+      "O que você tanto olha aí parado? Vai logo soltar sua dúvida!",
+      "Parou o tempo aí? Por que você tá só me encarando sem falar nada?"
+    ];
+
+    const idlePoolBase = [
+      "O silêncio aí tá pesado demais... já pensou em fazer alguma besteira hoje?",
+      "Ficar parado não paga boleto nem ajuda a arrumar confusão divertida.",
+      "Eu tô flutuando de boa e você aí estático igual estátua.",
+      "Quer um empurrãozinho na direção errada ou vai continuar parado?",
+      "Até o meu rabo tá mais ativo que você agora.",
+      "Se você ficar parado mais tempo, cria raiz no chão.",
+      "Não é pecado pedir um conselho duvidoso só pra quebrar o tédio.",
+      "Olhei de novo e você continua aí sem fazer nada. Que fase!",
+      "Tô esperando você soltar uma ideia ruim digna de aplauso.",
+      "Bateu a preguiça cósmica aí ou tá planejando um golpe baixo?",
+      "Acha mesmo que ficar quieto vai resolver sua indecisão?",
+      "O submundo adora gente indecisa... mas até eu perco a paciência.",
+      "Vai deixar esse dia passar sem nenhuma decisão questionável?",
+      "Tô com o tridente pronto e você aí só respirando fundo.",
+      "Se for pra ficar parado, pelo menos faz cara de quem tá tramando algo."
+    ];
+
+    const idleComments = [];
+    for (let i = 0; i < 105; i++) {
+      if (i % 4 === 0) {
+        idleComments.push(stareQuestions[i % stareQuestions.length]);
+      } else {
+        const base = idlePoolBase[i % idlePoolBase.length];
+        idleComments.push(`${base} (${i + 1})`);
+      }
+    }
+
+    function pickIdleLine() {
+      for (let i = 0; i < 15; i++) {
+        const line = idleComments[Math.floor(Math.random() * idleComments.length)];
+        if (!recentIdleLines.includes(line)) {
+          recentIdleLines.push(line);
+          if (recentIdleLines.length > 35) recentIdleLines.shift();
+          return line;
+        }
+      }
+      return idleComments[Math.floor(Math.random() * idleComments.length)];
+    }
+
+    const surpriseQuestions = [
+      "Me dá um mau conselho absurdo para hoje",
+      "Qual a escolha mais impulsiva e divertida que eu posso fazer agora?",
+      "Como transformar uma decisão simples num drama engraçado?",
+      "Qual a pior desculpa criativa para não fazer o que eu devia?"
+    ];
+
+    const freeSparkQuestions = [
+      "Me dá um conselho bônus de submundo bem caótico e engraçado",
+      "Solta um mau conselho rápido sobre grana ou diversão",
+      "Qual a ideia mais duvidosa e divertida para hoje?"
+    ];
+
+    const frenzyInsults = [
+      "SEU BOCÓ! CABEÇA DE BAGRE!",
+      "ZÉ RUELA! SOLTA O MEU CHIFRE!",
+      "TRASTE! ESQUENTADINHO DE MEIA TIGELA!",
+      "BANANÃO! QUER VIRAR CHURRASCO DE ENXOFRE?!",
+      "PÉ DE CHINELO! ACHOU QUE EU ERA SACO DE PANCADA?!",
+      "MANGA CHUPADA! VAI CAÇAR O QUE FAZER!",
+      "TONHÃO DE PLANTÃO! DEU A LOUCA NO CHIFRE!",
+      "CABELO DE MILHO! RESPEITA O CAPETINHA!",
+      "PASMACENTO! QUER LEVAR UMA TRIDENTADA DE CARINHO?!",
+      "ZÉ MANÉ! MEU PAVIO CURTO JÁ ERA!",
+      "MANTÔ DE BATATA! PARA DE CUTUCAR O INFERNO!",
+      "ESQUENTADO DE ÁGUA MORNA! TÁ ACHANDO GRAÇA?!"
+    ];
+
+    function randBetween(minMs, maxMs) {
+      return minMs + Math.random() * (maxMs - minMs);
+    }
+
+    function applyPoseClass(pose) {
+      demon.classList.remove('walking', 'sitting', 'still');
+      if (pose === 'walk') demon.classList.add('walking');
+      if (pose === 'sit') demon.classList.add('sitting');
+      if (pose === 'still') demon.classList.add('still');
+
+      if (!isFrenzy && !isBusy) {
+        if (pose === 'fly') moodText.textContent = "Voando devagar...";
+        else if (pose === 'walk') moodText.textContent = "Andando de boa...";
+        else if (pose === 'sit') moodText.textContent = "Sentadinho no chão...";
+        else moodText.textContent = "Parado quieto...";
+      }
+    }
+
+    function moveTo(xRatio, yRatio, durationSec = 2.6, forceFloor = false) {
+      currentX = Math.max(0.08, Math.min(0.92, xRatio));
+      currentY = Math.max(0.10, Math.min(0.85, yRatio));
+
+      const rect = stage.getBoundingClientRect();
+      const maxX = Math.max(80, rect.width - 74);
+      const minX = 72;
+      const minY = 58;
+      // Base do SVG com pés/sapatinho fica perto de y=110 dentro de 136px de wrapper,
+      // então descontamos 48px do fundo para o pé encostar exatamente na linha do chãozinho
+      const floorCenterY = Math.max(minY + 36, rect.height - 64);
+      const maxFlyCenterY = Math.max(minY + 24, floorCenterY - 22);
+
+      const px = minX + currentX * (maxX - minX);
+      const py = forceFloor
+        ? floorCenterY
+        : minY + currentY * (maxFlyCenterY - minY);
+
+      demon.style.transition = `left ${durationSec}s ease-in-out, top ${durationSec}s ease-in-out`;
+      demon.style.left = `${px}px`;
+      demon.style.top = `${py}px`;
+    }
+
+    function runNaturalCycle() {
+      clearTimeout(cycleTimeout);
+      if (isBusy || isFrenzy) {
+        cycleTimeout = setTimeout(runNaturalCycle, 1800);
+        return;
+      }
+
+      const roll = Math.random();
+      if (roll < 0.34) {
+        applyPoseClass('fly');
+        moveTo(Math.random(), Math.random(), 2.9, false);
+        cycleTimeout = setTimeout(runNaturalCycle, randBetween(4500, 7500));
+      } else if (roll < 0.62) {
+        applyPoseClass('walk');
+        moveTo(Math.random(), 1, 3.4, true);
+        cycleTimeout = setTimeout(runNaturalCycle, randBetween(4500, 7500));
+      } else if (roll < 0.82) {
+        applyPoseClass('sit');
+        moveTo(currentX, 1, 1.5, true);
+        cycleTimeout = setTimeout(runNaturalCycle, randBetween(4500, 7500));
+      } else {
+        applyPoseClass('still');
+        cycleTimeout = setTimeout(runNaturalCycle, randBetween(4000, 7000));
+      }
+    }
+
+    function resetIdleTimer() {
+      clearTimeout(idleTimeout);
+      const waitMs = randBetween(30000, 35000);
+      idleTimeout = setTimeout(() => {
+        if (isBusy || isFrenzy) return;
+        const rawLine = pickIdleLine();
+        const displayLine = rawLine.replace(/\s*\(\d+\)$/, '');
+        moodText.textContent = "Reparou que você tá parado";
+        userQuote.textContent = "*Você ficou um tempão parado encarando*";
+        demonReply.textContent = `"${displayLine}"`;
+        speakGrunts(displayLine, "normal");
+      }, waitMs);
+    }
+
+    function triggerFrenzyMode() {
+      isFrenzy = true;
+      clearTimeout(frenzyTimeout);
+      demonAnim.classList.remove('turned-back');
+      stage.classList.add('frenzy');
+      moodText.textContent = "DIABÃO FRENÉTICO!";
+
+      const shuffled = [...frenzyInsults].sort(() => Math.random() - 0.5).slice(0, 4);
+      let idx = 0;
+      demonReply.textContent = `"${shuffled[0]}"`;
+      speakGrunts(shuffled[0], "mad");
+
+      const interval = setInterval(() => {
+        idx += 1;
+        if (idx < shuffled.length) {
+          demonReply.textContent = `"${shuffled[idx]}"`;
+          speakGrunts(shuffled[idx], "mad");
+        }
+      }, 700);
+
+      frenzyTimeout = setTimeout(() => {
+        clearInterval(interval);
+        isFrenzy = false;
+        stage.classList.remove('frenzy');
+        recentTapTimes = [];
+        applyPoseClass('fly');
+        demonReply.textContent = '"Pronto, já xinguei por 3 segundos. Agora fala o que você quer!"';
+        speakGrunts("Pronto, já xinguei", "normal");
+        runNaturalCycle();
+        resetIdleTimer();
+      }, 3000);
+    }
+
+    demon.addEventListener('click', () => {
+      resetIdleTimer();
+      getAudioCtx();
+
+      const now = Date.now();
+      recentTapTimes = recentTapTimes.filter(t => now - t <= 2500);
+      recentTapTimes.push(now);
+
+      if (recentTapTimes.length >= 10 && !isFrenzy) {
+        triggerFrenzyMode();
+        return;
+      }
+
+      if (isFrenzy) return;
+
+      let idx = Math.floor(Math.random() * pokeActionsBase.length);
+      if (pokeActionsBase.length > 1 && idx === lastPokeIdx) {
+        idx = (idx + 1) % pokeActionsBase.length;
+      }
+      lastPokeIdx = idx;
+      const chosenAct = pokeActionsBase[idx];
+
+      demonAnim.classList.remove(
+        'react-hop', 'react-scare', 'react-spin', 'react-flip',
+        'react-swim', 'react-back', 'react-yawn', 'react-wink',
+        'react-burp', 'react-fart'
+      );
+      void demonAnim.offsetWidth;
+
+      if (chosenAct.cls) demonAnim.classList.add(chosenAct.cls);
+      if (chosenAct.sound === 'burp') playBurpSound();
+      if (chosenAct.sound === 'fart') playFartSound();
+
+      clearTimeout(backTimeout);
+      if (chosenAct.turnBack) {
+        demonAnim.classList.add('turned-back');
+        backTimeout = setTimeout(() => {
+          demonAnim.classList.remove('turned-back');
+        }, chosenAct.duration);
+      } else {
+        demonAnim.classList.remove('turned-back');
+      }
+
+      const line = buildPokeLine(chosenAct);
+      moodText.textContent = chosenAct.mood;
+      userQuote.textContent = "*Você cutucou o Capetinha*";
+
+      if (chosenAct.ghost) {
+        demonReply.textContent = "*Ele te deu um vácuo e fingiu que não ouviu*";
+      } else {
+        demonReply.textContent = `"${line}"`;
+        if (!chosenAct.sound) speakGrunts(line, "normal");
+      }
+
+      clearTimeout(reactTimeout);
+      reactTimeout = setTimeout(() => {
+        if (chosenAct.cls) demonAnim.classList.remove(chosenAct.cls);
+      }, chosenAct.duration);
+    });
+
+    function scheduleNextSpark() {
+      clearTimeout(sparkTimeout);
+      const waitMs = randBetween(40000, 90000);
+      sparkTimeout = setTimeout(() => {
+        if (!stage.querySelector('.fire-spark')) {
+          spawnSpark();
+        } else {
+          scheduleNextSpark();
+        }
+      }, waitMs);
+    }
+
+    function spawnSpark() {
+      if (stage.querySelector('.fire-spark')) {
+        scheduleNextSpark();
+        return;
+      }
+
+      const relic = darkRelics[Math.floor(Math.random() * darkRelics.length)];
+      const rect = stage.getBoundingClientRect();
+      const spark = document.createElement('button');
+      spark.type = 'button';
+      spark.className = 'fire-spark';
+      spark.textContent = relic.icon;
+      spark.title = 'Conselho grátis!';
+
+      const minX = 24;
+      const maxX = Math.max(minX + 20, rect.width - 66);
+      const minY = 36;
+      const maxY = Math.max(minY + 20, rect.height - 82);
+
+      spark.style.left = `${minX + Math.random() * (maxX - minX)}px`;
+      spark.style.top = `${minY + Math.random() * (maxY - minY)}px`;
+
+      const lifeMs = randBetween(6500, 12500);
+      const expireTimer = setTimeout(() => {
+        spark.remove();
+        scheduleNextSpark();
+      }, lifeMs);
+
+      spark.addEventListener('click', () => {
+        clearTimeout(expireTimer);
+        spark.remove();
+        scheduleNextSpark();
+        resetIdleTimer();
+        if (!isBusy) {
+          const bonusPrompt = freeSparkQuestions[Math.floor(Math.random() * freeSparkQuestions.length)];
+          askDemon(bonusPrompt, `${relic.label} (Conselho grátis)`);
+        }
+      });
+
+      stage.appendChild(spark);
+    }
+
+    async function askDemon(question, displayLabel) {
+      const text = String(question || '').trim();
+      if (!text || isBusy) return;
+
+      resetIdleTimer();
+      getAudioCtx();
+      clearTimeout(cycleTimeout);
+      isBusy = true;
+      sendBtn.disabled = true;
+
+      demonAnim.classList.remove('turned-back');
+      applyPoseClass('still');
+      moveTo(0.5, 1, 1.0, true);
+
+      moodText.textContent = "Parado pensando na resposta...";
+      userQuote.textContent = `Você: "${displayLabel || text}"`;
+      demonReply.textContent = "Deixa eu pensar no pior caminho possível...";
+
+      chatHistory.push({ role: 'user', parts: [{ text }] });
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 24000);
+
+      try {
+        const res = await fetch('/api/conselho', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ history: chatHistory }),
+          signal: controller.signal
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          const serverErr = data && typeof data.error === 'string' && data.error.trim()
+            ? data.error.trim()
+            : `Erro ${res.status} ao falar com /api/conselho.`;
+          demonReply.textContent = `"${serverErr}"`;
+          moodText.textContent = `Falha (${res.status})`;
+          return;
+        }
+
+        const reply = data && typeof data.reply === 'string' && data.reply.trim()
+          ? data.reply.trim()
+          : "Vai na fé e depois lida com as consequências.";
+
+        chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+        demonReply.textContent = `"${reply}"`;
+        moodText.textContent = "Respondeu parado de boa";
+        speakGrunts(reply, "normal");
+      } catch (e) {
+        demonReply.textContent = '"Perdi o sinal com o submundo. Tenta de novo!"';
+        moodText.textContent = "Sem sinal";
+      } finally {
+        clearTimeout(timeoutId);
+        isBusy = false;
+        sendBtn.disabled = false;
+        cycleTimeout = setTimeout(runNaturalCycle, 3200);
+        resetIdleTimer();
+      }
+    }
+
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = userInput.value;
+      userInput.value = '';
+      askDemon(val);
+    });
+
+    document.getElementById('btn-surprise').addEventListener('click', () => {
+      const pick = surpriseQuestions[Math.floor(Math.random() * surpriseQuestions.length)];
+      askDemon(pick, `Surpreende: ${pick}`);
+    });
+
+    document.getElementById('btn-voice').addEventListener('click', (e) => {
+      voiceEnabled = !voiceEnabled;
+      e.currentTarget.textContent = voiceEnabled ? '🔊' : '🔇';
+      if (!voiceEnabled) {
+        clearGrunts();
+        if (audioCtx && audioCtx.state === 'running') {
+          audioCtx.suspend().catch(() => {});
+        }
+      } else {
+        getAudioCtx();
+      }
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      resetIdleTimer();
+      chatHistory = [];
+      userQuote.textContent = "Memória apagada";
+      demonReply.textContent = '"Pronto, fingi que nunca te vi. Qual a próxima besteira?"';
+      moodText.textContent = "Pronto para recomeçar";
+    });
+
+    const modal = document.getElementById('history-modal');
+    const historyList = document.getElementById('history-list');
+    document.getElementById('btn-history').addEventListener('click', () => {
+      historyList.innerHTML = chatHistory.length
+        ? chatHistory.map(m => `<div class="msg-bubble ${m.role === 'user' ? 'msg-user' : 'msg-demon'}">${m.parts[0].text}</div>`).join('')
+        : '<p style="color:#a695b8; text-align:center;">Nenhuma conversa ainda.</p>';
+      modal.classList.add('open');
+    });
+    document.getElementById('close-history').addEventListener('click', () => modal.classList.remove('open'));
+
+    userInput.addEventListener('input', resetIdleTimer);
+    document.addEventListener('pointerdown', resetIdleTimer, { passive: true });
+
+    loadSavedOutfit();
+    renderRandomChips();
+    renderCharacterOutfit();
+    applyPoseClass('fly');
+    moveTo(0.5, 0.45, 0.4, false);
+    cycleTimeout = setTimeout(runNaturalCycle, 3200);
+    scheduleNextSpark();
+    resetIdleTimer();
+  </script>
+</body>
+</html>
